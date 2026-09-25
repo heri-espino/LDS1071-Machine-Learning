@@ -1,44 +1,50 @@
-# ML — Guía resuelta del Parcial I
+# LDS1071 — Machine Learning
 
-Guía de estudio en LaTeX para **Aprendizaje de Máquina (LDS1071)**. El documento responde las preguntas de la guía del primer parcial e incluye:
+Repositorio del curso **LDS1071 Aprendizaje de Máquina**.
 
-- fundamentos de aprendizaje supervisado y no supervisado;
-- representación de `X` y `y`;
-- entrenamiento, validación y prueba;
-- generalización, underfitting y overfitting;
-- MAE, MSE y RMSE;
-- matriz de confusión, accuracy, precision, recall y F1;
-- clases desbalanceadas;
-- parámetros e hiperparámetros;
-- lectura básica de scikit-learn;
-- flujo completo de un proyecto de ML;
-- los seis ejercicios integradores resueltos;
-- diagramas hechos directamente en TikZ/PGFPlots.
+La estructura separa el material oficial del curso, las entregas, los notebooks de trabajo y las guías de estudio para evitar mezclar archivos descargados, experimentos y productos finales.
 
-## Compilar localmente
+## Estructura
 
-Con una distribución de LaTeX que incluya `latexmk`:
-
-```bash
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+```text
+.
+├── course-material/     # PDFs y material distribuido en clase/Blackboard
+├── assignments/         # código y assets de actividades
+├── submissions/         # archivos finales entregados
+├── notebooks/           # exploraciones y notebooks de clase
+├── study-guide/         # guías de estudio en LaTeX
+├── docs/                # documentación del repositorio
+└── hands-mlp/           # subtree de ageron/handson-mlp (se agrega localmente)
 ```
 
-O con `pdflatex`:
+Los notebooks cuyo contenido todavía no permite asignar un nombre confiable permanecen en `notebooks/_unsorted/` en lugar de inventar una clasificación.
 
-```bash
-pdflatex -interaction=nonstopmode main.tex
-pdflatex -interaction=nonstopmode main.tex
+## Guía del Parcial I
+
+Fuente:
+
+```text
+study-guide/partial-1/main.tex
 ```
 
-El PDF resultante será `main.pdf`.
+Compilar localmente:
 
-## Compilar en GitHub Actions
+```bash
+latexmk -pdf -interaction=nonstopmode -halt-on-error study-guide/partial-1/main.tex
+```
 
-El workflow **Build study guide PDF** es manual. En GitHub:
+También existe un workflow manual de GitHub Actions: **Build study guide PDF**.
 
-1. abre **Actions**;
-2. selecciona **Build study guide PDF**;
-3. pulsa **Run workflow**;
-4. al terminar, descarga el artifact con `main.pdf`.
+## Hands-On Machine Learning
 
-No se compila automáticamente en cada `push`.
+El repositorio de Aurélien Géron se mantiene como **git subtree** bajo `hands-mlp/`, no como una copia desconectada ni como submodule.
+
+Consulta `docs/handson-mlp-subtree.md` para agregarlo y actualizarlo desde upstream.
+
+## Convención
+
+- `course-material/`: material recibido.
+- `assignments/`: archivos de trabajo de una actividad.
+- `submissions/`: artefactos entregados.
+- `notebooks/`: experimentos, ejemplos y notas ejecutables.
+- `study-guide/`: documentos de estudio escritos para el curso.

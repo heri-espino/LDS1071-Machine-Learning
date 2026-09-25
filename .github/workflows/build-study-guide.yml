@@ -1,0 +1,34 @@
+name: Build study guide PDF
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout exact revision
+        uses: actions/checkout@v4
+
+      - name: Compile LaTeX
+        uses: xu-cheng/latex-action@v3
+        with:
+          root_file: study-guide/partial-1/main.tex
+          latexmk_use_xelatex: false
+          args: -pdf -interaction=nonstopmode -halt-on-error
+
+      - name: Short commit SHA
+        id: vars
+        shell: bash
+        run: echo "short_sha=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
+      - name: Upload PDF
+        uses: actions/upload-artifact@v4
+        with:
+          name: LDS1071-parcial-I-${{ steps.vars.outputs.short_sha }}
+          path: study-guide/partial-1/main.pdf
+          retention-days: 30
+          if-no-files-found: error
