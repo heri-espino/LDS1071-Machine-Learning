@@ -1,0 +1,984 @@
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.2cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,multirow}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,matrix}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+\definecolor{azul}{HTML}{1F4E79}
+\definecolor{azulclaro}{HTML}{EAF3F8}
+\definecolor{verde}{HTML}{2D6A4F}
+\definecolor{verdeclaro}{HTML}{E9F5EE}
+\definecolor{gris}{HTML}{555555}
+\definecolor{rojoclaro}{HTML}{FBEAEA}
+
+\hypersetup{colorlinks=true,linkcolor=azul,urlcolor=azul,citecolor=azul}
+\setlist[itemize]{leftmargin=1.6em,itemsep=2pt,topsep=4pt}
+\setlist[enumerate]{leftmargin=2em,itemsep=4pt,topsep=4pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\headheight}{14pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{Aprendizaje de Máquina -- Parcial I}
+\rhead{Guía resuelta}
+\cfoot{\thepage\ de \pageref{LastPage}}
+
+\newtcolorbox{respuesta}{
+  colback=azulclaro,
+  colframe=azul,
+  boxrule=0.7pt,
+  arc=2mm,
+  left=2mm,right=2mm,top=1mm,bottom=1mm
+}
+\newtcolorbox{clave}{
+  colback=verdeclaro,
+  colframe=verde,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=Idea clave,
+  fonttitle=\bfseries
+}
+\newtcolorbox{advertencia}{
+  colback=rojoclaro,
+  colframe=red!70!black,
+  boxrule=0.7pt,
+  arc=2mm,
+  title=Atención,
+  fonttitle=\bfseries
+}
+
+\newcommand{\pregunta}[1]{\vspace{2mm}\textbf{#1}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\yhat}{\hat y}
+
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  backgroundcolor=\color{black!3},
+  frame=single,
+  rulecolor=\color{black!20},
+  keywordstyle=\color{azul}\bfseries,
+  commentstyle=\color{verde},
+  showstringspaces=false,
+  columns=fullflexible,
+  breaklines=true
+}
+
+\title{\textbf{Guía resuelta -- Examen Parcial I}\\[2mm]
+\large Aprendizaje de Máquina -- LDS1071}
+\author{Material de estudio}
+\date{}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+\section*{Notación y vocabulario mínimo}
+\addcontentsline{toc}{section}{Notación y vocabulario mínimo}
+
+Para un conjunto de $n$ observaciones y $p$ características, usaremos
+\[
+X\in\R^{n\times p},\qquad y\in\R^n\ \text{o}\ y\in\{1,\dots,K\}^n.
+\]
+La fila $x_i^\top$ representa la observación $i$; la columna $j$ representa la característica $j$; $y_i$ es la variable objetivo de la observación $i$; y $\hat y_i$ es la predicción del modelo.
+
+\begin{clave}
+El hilo conductor de casi todo el parcial es: \emph{aprender patrones con datos disponibles y medir si esos patrones funcionan en datos no vistos}. Entrenar bien no basta; hay que generalizar.
+\end{clave}
+
+% ============================================================
+\section{Fundamentos del aprendizaje de máquina}
+
+\subsection*{Mapa conceptual}
+\begin{center}
+\begin{tikzpicture}[
+  node distance=10mm and 11mm,
+  box/.style={draw,rounded corners,align=center,minimum width=3.0cm,minimum height=9mm,fill=blue!4},
+  arr/.style={-Latex,thick}
+]
+\node[box] (ml) {Aprendizaje\\de máquina};
+\node[box,below left=of ml] (sup) {Supervisado\\hay objetivo $y$};
+\node[box,below right=of ml] (unsup) {No supervisado\\no hay objetivo $y$};
+\node[box,below left=of sup] (class) {Clasificación\\$y$ categórica};
+\node[box,below right=of sup] (reg) {Regresión\\$y$ numérica};
+\node[box,below=of unsup] (clus) {Clustering\\descubrir grupos};
+\draw[arr] (ml)--(sup); \draw[arr] (ml)--(unsup);
+\draw[arr] (sup)--(class); \draw[arr] (sup)--(reg); \draw[arr] (unsup)--(clus);
+\end{tikzpicture}
+\end{center}
+
+\pregunta{1. ¿Qué diferencia fundamental existe entre aprendizaje supervisado y no supervisado?}
+\begin{respuesta}
+En el aprendizaje \textbf{supervisado} cada observación de entrenamiento incluye una salida conocida $y_i$ y se busca aprender una función $f(X)\approx y$. En el aprendizaje \textbf{no supervisado} no existe una etiqueta objetivo conocida; el algoritmo intenta descubrir estructura en $X$, por ejemplo grupos, direcciones principales o representaciones latentes.
+\end{respuesta}
+
+\pregunta{2. ¿Qué información adicional tienen los datos utilizados en aprendizaje supervisado?}
+\begin{respuesta}
+Tienen una \textbf{etiqueta o variable objetivo} asociada a cada observación. Matemáticamente se observan pares $(x_i,y_i)$, no sólo $x_i$.
+\end{respuesta}
+
+\pregunta{3. ¿Cuál es la diferencia entre clasificación y regresión?}
+\begin{respuesta}
+Ambos son aprendizaje supervisado. En \textbf{clasificación}, $y$ toma categorías discretas, como «fraude/no fraude». En \textbf{regresión}, $y$ es una cantidad numérica, como precio, temperatura o gasto mensual.
+\end{respuesta}
+
+\pregunta{4. ¿Puede un problema de clasificación tener más de dos clases?}
+\begin{respuesta}
+Sí. Si $K>2$ se llama \textbf{clasificación multiclase}. Por ejemplo, clasificar una imagen como gato, perro, caballo o ave tiene cuatro clases.
+\end{respuesta}
+
+\pregunta{5. ¿Qué diferencia existe entre clasificación binaria y multiclase?}
+\begin{respuesta}
+La clasificación binaria tiene exactamente dos clases, típicamente codificadas como $0$ y $1$. La multiclase tiene tres o más categorías posibles. El objetivo sigue siendo asignar una categoría a cada observación.
+\end{respuesta}
+
+\pregunta{6. ¿Qué significa que un conjunto de datos esté etiquetado?}
+\begin{respuesta}
+Que para cada observación de entrada se conoce la salida correcta o variable objetivo. Por ejemplo, si cada correo viene acompañado de la etiqueta «spam» o «no spam», los datos están etiquetados.
+\end{respuesta}
+
+\pregunta{7. ¿Qué tipo de aprendizaje utilizarías para descubrir grupos naturales dentro de un conjunto de datos?}
+\begin{respuesta}
+Aprendizaje \textbf{no supervisado}, específicamente un método de \textbf{clustering} como $k$-means, porque no conocemos de antemano las etiquetas de los grupos.
+\end{respuesta}
+
+\pregunta{8. ¿Qué tipo de aprendizaje utilizarías para predecir una cantidad continua?}
+\begin{respuesta}
+Aprendizaje supervisado de \textbf{regresión}. Ejemplo: predecir el precio de una vivienda en pesos.
+\end{respuesta}
+
+\pregunta{9. Da dos ejemplos propios de problemas de clasificación.}
+\begin{respuesta}
+(1) Determinar si una transacción bancaria es fraudulenta o legítima. (2) Clasificar una fotografía de una planta según su especie.
+\end{respuesta}
+
+\pregunta{10. Da dos ejemplos propios de problemas de regresión.}
+\begin{respuesta}
+(1) Predecir el consumo eléctrico de una casa durante el siguiente día. (2) Predecir el rendimiento de un cultivo en toneladas por hectárea.
+\end{respuesta}
+
+\pregunta{11. Da dos ejemplos propios de problemas de aprendizaje no supervisado.}
+\begin{respuesta}
+(1) Segmentar clientes en grupos con comportamientos de compra semejantes sin categorías previas. (2) Detectar estructuras o agrupaciones en documentos usando sólo sus características textuales.
+\end{respuesta}
+
+% ============================================================
+\section{Datos: características y variable objetivo}
+
+\subsection*{Representación matricial}
+\begin{center}
+\begin{tikzpicture}[scale=0.92]
+\matrix[matrix of math nodes,left delimiter={[},right delimiter={]},nodes={minimum width=9mm,minimum height=6mm}] (X) {
+ x_{11} & x_{12} & \cdots & x_{1p}\\
+ x_{21} & x_{22} & \cdots & x_{2p}\\
+ \vdots & \vdots & \ddots & \vdots\\
+ x_{n1} & x_{n2} & \cdots & x_{np}\\
+};
+\node[above=2mm of X] {$X$: entradas / características};
+\draw[decorate,decoration={brace,amplitude=4pt},thick] ($(X.north west)+(-.4,.1)$) -- ($(X.south west)+(-.4,-.1)$) node[midway,left=7mm] {$n$ observaciones};
+\draw[decorate,decoration={brace,amplitude=4pt,mirror},thick] ($(X.south west)+(0,-.35)$) -- ($(X.south east)+(0,-.35)$) node[midway,below=6mm] {$p$ características};
+\node[right=18mm of X] (arrow) {$\longrightarrow$};
+\matrix[matrix of math nodes,left delimiter={[},right delimiter={]},right=10mm of arrow] (y) {y_1\\y_2\\\vdots\\y_n\\};
+\node[above=2mm of y] {$y$: objetivo};
+\end{tikzpicture}
+\end{center}
+
+\pregunta{1. ¿Qué representa normalmente una fila de la matriz $X$?}
+\begin{respuesta}
+Una \textbf{observación, instancia o ejemplo}. Por ejemplo, una fila puede corresponder a un cliente, paciente, casa o imagen.
+\end{respuesta}
+
+\pregunta{2. ¿Qué representa normalmente una columna de $X$?}
+\begin{respuesta}
+Una \textbf{característica} o variable de entrada medida para todas las observaciones: edad, ingreso, área, temperatura, etc.
+\end{respuesta}
+
+\pregunta{3. ¿Qué representa $y$ en aprendizaje supervisado?}
+\begin{respuesta}
+La \textbf{variable objetivo} que el modelo intenta predecir. En clasificación contiene clases; en regresión contiene valores numéricos.
+\end{respuesta}
+
+\pregunta{4. Si tenemos 1000 observaciones y 15 características, ¿qué dimensiones tendría normalmente $X$?}
+\begin{respuesta}
+$X$ tendría dimensión $1000\times 15$: 1000 filas y 15 columnas.
+\end{respuesta}
+
+\pregunta{5. ¿Cuántos valores tendría $y$ en el ejemplo anterior?}
+\begin{respuesta}
+1000 valores, uno por observación. Puede escribirse $y\in\R^{1000}$ en regresión.
+\end{respuesta}
+
+\pregunta{6. ¿Puede una característica ser categórica?}
+\begin{respuesta}
+Sí. Por ejemplo: ciudad, tipo de cliente o color. Algunos modelos admiten categorías directamente; otros requieren una codificación numérica como \emph{one-hot encoding}.
+\end{respuesta}
+
+\pregunta{7. ¿Puede una característica ser numérica?}
+\begin{respuesta}
+Sí. Ejemplos: edad, ingreso, estatura, número de compras o temperatura.
+\end{respuesta}
+
+\pregunta{8. ¿Qué diferencia existe entre una característica y la variable objetivo?}
+\begin{respuesta}
+Una característica forma parte de la información de entrada que el modelo puede utilizar para producir una predicción. La variable objetivo es aquello que queremos predecir y proporciona la señal de aprendizaje durante el entrenamiento supervisado.
+\end{respuesta}
+
+\pregunta{9. Dado un problema real, identifica posibles características y la variable objetivo.}
+\begin{respuesta}
+Ejemplo: predecir el precio de una vivienda. Características: superficie, número de habitaciones, antigüedad, ubicación y distancia al centro. Variable objetivo: precio de venta.
+\end{respuesta}
+
+\pregunta{10. ¿Por qué la variable objetivo no se considera normalmente una característica de entrada?}
+\begin{respuesta}
+Porque en el momento real de predicción precisamente \textbf{no conocemos} esa variable. Incluirla como entrada produciría \textbf{fuga de información} (\emph{data leakage}): el modelo recibiría parte o toda la respuesta que debería inferir.
+\end{respuesta}
+
+% ============================================================
+\section{Entrenamiento, validación y prueba}
+
+\begin{center}
+\begin{tikzpicture}[x=1cm,y=1cm]
+\draw[rounded corners,fill=blue!8] (0,0) rectangle (12,1);
+\fill[blue!35] (0,0) rectangle (8.4,1);
+\fill[green!35] (8.4,0) rectangle (10.2,1);
+\fill[orange!45] (10.2,0) rectangle (12,1);
+\node at (4.2,.5) {Entrenamiento $\sim70\%$};
+\node at (9.3,.5) {Validación};
+\node at (11.1,.5) {Prueba};
+\node[below] at (4.2,-.15) {ajustar parámetros};
+\node[below] at (9.3,-.15) {elegir modelo};
+\node[below] at (11.1,-.15) {evaluación final};
+\end{tikzpicture}
+\end{center}
+
+\pregunta{1. ¿Sobre qué conjunto se ajustan normalmente los parámetros del modelo?}
+\begin{respuesta}
+Sobre el \textbf{conjunto de entrenamiento}. Los parámetros son los valores internos aprendidos por el algoritmo a partir de $(X_{train},y_{train})$.
+\end{respuesta}
+
+\pregunta{2. ¿Para qué se utiliza el conjunto de validación?}
+\begin{respuesta}
+Para comparar modelos, seleccionar hiperparámetros, decidir complejidad y tomar decisiones de desarrollo sin usar el conjunto de prueba final.
+\end{respuesta}
+
+\pregunta{3. ¿Para qué se utiliza el conjunto de prueba?}
+\begin{respuesta}
+Para estimar, al final del desarrollo, el desempeño del modelo sobre datos no vistos. Debe funcionar como una evaluación final lo más independiente posible.
+\end{respuesta}
+
+\pregunta{4. ¿Por qué no deberíamos entrenar y evaluar un modelo utilizando exactamente los mismos datos?}
+\begin{respuesta}
+Porque mediríamos qué tan bien el modelo reproduce datos que ya vio, no qué tan bien generaliza. Un modelo puede memorizar peculiaridades del entrenamiento y aun así fallar en datos nuevos.
+\end{respuesta}
+
+\pregunta{5. ¿Qué significa que un modelo generalice?}
+\begin{respuesta}
+Que mantenga un buen desempeño en observaciones nuevas provenientes del mismo fenómeno o distribución de interés, no sólo en los ejemplos usados para ajustarlo.
+\end{respuesta}
+
+\pregunta{6. ¿Qué problema puede surgir si seleccionamos nuestro modelo observando continuamente los resultados del conjunto de prueba?}
+\begin{respuesta}
+El desarrollo termina adaptándose indirectamente al conjunto de prueba. Aunque no entrenemos formalmente con él, nuestras decisiones usan su información; por ello la estimación final puede quedar \textbf{optimistamente sesgada}.
+\end{respuesta}
+
+\pregunta{7. ¿Qué diferencia existe entre seleccionar un modelo y evaluar el modelo final?}
+\begin{respuesta}
+Seleccionar un modelo es comparar alternativas y tomar decisiones, normalmente con validación. Evaluar el modelo final consiste en estimar su capacidad de generalización una vez concluidas esas decisiones, usando datos de prueba que no guiaron el desarrollo.
+\end{respuesta}
+
+\pregunta{8. Si tienes 10,000 observaciones, propón una división razonable entre entrenamiento, validación y prueba.}
+\begin{respuesta}
+Una división razonable es 70\% / 15\% / 15\%: 7000 para entrenamiento, 1500 para validación y 1500 para prueba. También pueden ser razonables otras proporciones según tamaño, ruido y costo de obtener datos.
+\end{respuesta}
+
+\pregunta{9. ¿Existe una única proporción correcta para dividir los datos?}
+\begin{respuesta}
+No. La división depende de cuántos datos haya, cuánta variabilidad exista, el costo de entrenar, la necesidad de precisión en la evaluación y si se utiliza validación cruzada.
+\end{respuesta}
+
+\pregunta{10. ¿Por qué normalmente queremos utilizar una mayor cantidad de datos para entrenamiento que para prueba?}
+\begin{respuesta}
+Porque los datos de entrenamiento contienen la información con la que se aprenden los patrones del modelo. El conjunto de prueba sólo necesita ser suficientemente grande y representativo para estimar el error con precisión razonable.
+\end{respuesta}
+
+% ============================================================
+\section{Generalización}
+
+\pregunta{1. ¿Qué significa que un modelo tenga buena capacidad de generalización?}
+\begin{respuesta}
+Que su error en datos no vistos sea bajo y semejante al esperado para observaciones futuras del problema real.
+\end{respuesta}
+
+\pregunta{2. ¿Un error de entrenamiento muy pequeño garantiza un buen modelo? Explica.}
+\begin{respuesta}
+No. Puede indicar un ajuste correcto, pero también memorización. El criterio relevante es el desempeño fuera de muestra: un error de entrenamiento pequeño con error de prueba grande es una señal típica de sobreajuste.
+\end{respuesta}
+
+\pregunta{3. ¿Qué información nos proporciona comparar el desempeño en entrenamiento y en datos no observados?}
+\begin{respuesta}
+Permite separar dos preguntas: (i) si el modelo logra ajustarse a los patrones disponibles y (ii) si esos patrones se transfieren a datos nuevos. La brecha entre errores ayuda a diagnosticar sobreajuste; errores altos en ambos conjuntos sugieren subajuste.
+\end{respuesta}
+
+\pregunta{4. Si dos modelos tienen el mismo error de entrenamiento pero diferente error de prueba, ¿qué información puedes obtener?}
+\begin{respuesta}
+El modelo con menor error de prueba muestra mejor generalización en esa evaluación. Como ambos ajustan igual el entrenamiento, la diferencia aparece al enfrentarse a datos no vistos.
+\end{respuesta}
+
+\pregunta{5. ¿Por qué el desempeño sobre datos no observados es importante en aplicaciones reales?}
+\begin{respuesta}
+Porque el propósito de entrenar un modelo es usarlo después sobre casos que todavía no conocemos. Un sistema que sólo funciona en los datos históricos no cumple el objetivo predictivo.
+\end{respuesta}
+
+% ============================================================
+\section{Underfitting y overfitting}
+
+\subsection*{Curva conceptual error--complejidad}
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[
+  width=11cm,height=6.2cm,
+  xlabel={Complejidad del modelo}, ylabel={Error},
+  xmin=0,xmax=10,ymin=0,ymax=8,
+  xtick=\empty,ytick=\empty,
+  axis lines=left,
+  legend style={at={(0.5,-0.18)},anchor=north,legend columns=2,draw=none}
+]
+\addplot[thick,blue,domain=0.3:9.7,samples=100]{6.2*exp(-0.35*x)+0.45};
+\addlegendentry{Entrenamiento}
+\addplot[thick,red,domain=0.3:9.7,samples=100]{0.16*(x-5.2)^2+1.6};
+\addlegendentry{Validación/prueba}
+\draw[dashed] (axis cs:5.2,0) -- (axis cs:5.2,2.0);
+\node at (axis cs:1.5,7.2) {Subajuste};
+\node at (axis cs:8.5,7.2) {Sobreajuste};
+\node at (axis cs:5.2,2.45) {zona útil};
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\pregunta{1. ¿Cómo esperarías que fueran los errores de entrenamiento y prueba cuando existe subajuste?}
+\begin{respuesta}
+Ambos suelen ser relativamente altos y cercanos. El modelo es demasiado simple o insuficiente incluso para capturar los patrones del entrenamiento.
+\end{respuesta}
+
+\pregunta{2. ¿Cómo esperarías que fueran cuando existe sobreajuste?}
+\begin{respuesta}
+El error de entrenamiento suele ser muy bajo, mientras que el error de validación o prueba es notablemente mayor. La \textbf{brecha de generalización} es grande.
+\end{respuesta}
+
+\pregunta{3. ¿Por qué aumentar excesivamente la complejidad de un modelo puede favorecer el sobreajuste?}
+\begin{respuesta}
+Porque aumenta la capacidad de representar no sólo patrones estables sino también ruido, anomalías y coincidencias particulares del conjunto de entrenamiento.
+\end{respuesta}
+
+\pregunta{4. ¿Por qué un modelo demasiado simple puede presentar subajuste?}
+\begin{respuesta}
+Porque su familia de funciones no tiene suficiente flexibilidad para aproximar la relación real entre entradas y objetivo. El error permanece alto aun en entrenamiento.
+\end{respuesta}
+
+\pregunta{5. Menciona dos posibles estrategias para combatir el sobreajuste.}
+\begin{respuesta}
+(1) Reducir la complejidad o aplicar regularización. (2) Obtener más datos de entrenamiento representativos. También pueden ayudar selección de características, \emph{early stopping} y validación adecuada.
+\end{respuesta}
+
+\pregunta{6. Menciona dos posibles estrategias para combatir el subajuste.}
+\begin{respuesta}
+(1) Usar un modelo más flexible o aumentar su complejidad. (2) Construir características más informativas. También puede ser necesario entrenar mejor o reducir una regularización excesiva.
+\end{respuesta}
+
+\pregunta{7. ¿Obtener más datos de entrenamiento puede ayudar contra el sobreajuste?}
+\begin{respuesta}
+Sí, frecuentemente. Más datos dificultan memorizar peculiaridades individuales y permiten estimar patrones más estables, aunque no corrigen por sí solos todos los problemas de diseño o sesgo.
+\end{respuesta}
+
+\pregunta{8. ¿Reducir la complejidad del modelo puede ayudar contra el sobreajuste?}
+\begin{respuesta}
+Sí. Limitar la flexibilidad reduce la capacidad de ajustar ruido. Debe hacerse sin simplificar tanto que aparezca subajuste.
+\end{respuesta}
+
+\pregunta{9. ¿Aumentar la complejidad siempre mejora el desempeño?}
+\begin{respuesta}
+No. Normalmente reduce el error de entrenamiento, pero el error fuera de muestra puede disminuir sólo hasta cierto punto y luego aumentar debido al sobreajuste.
+\end{respuesta}
+
+\pregunta{10. ¿Qué buscarías idealmente al comparar los errores de entrenamiento y prueba?}
+\begin{respuesta}
+Errores bajos en ambos conjuntos y una brecha razonablemente pequeña. No buscamos igualdad exacta, sino buen desempeño fuera de muestra sin señales fuertes de incapacidad o memorización.
+\end{respuesta}
+
+% ============================================================
+\section{Evaluación de modelos de regresión}
+
+Para errores $e_i=y_i-\hat y_i$:
+\[
+\mathrm{MAE}=\frac1n\sum_{i=1}^n |e_i|,\qquad
+\mathrm{MSE}=\frac1n\sum_{i=1}^n e_i^2,\qquad
+\mathrm{RMSE}=\sqrt{\mathrm{MSE}}.
+\]
+
+\pregunta{1. ¿Qué mide el MAE?}
+\begin{respuesta}
+El tamaño promedio del error en valor absoluto. Puede interpretarse como cuánto se equivoca el modelo, en promedio, ignorando el signo del error.
+\end{respuesta}
+
+\pregunta{2. ¿Qué mide el MSE?}
+\begin{respuesta}
+El promedio de los errores al cuadrado. Penaliza de forma creciente los errores grandes y es siempre no negativo.
+\end{respuesta}
+
+\pregunta{3. ¿Por qué los errores grandes tienen mayor influencia en el MSE?}
+\begin{respuesta}
+Porque el error se eleva al cuadrado: duplicar un error multiplica su contribución por cuatro. Por ejemplo, un error de $10$ aporta $100$, mientras uno de $2$ aporta sólo $4$.
+\end{respuesta}
+
+\pregunta{4. ¿Qué ventaja de interpretación tiene RMSE respecto a MSE?}
+\begin{respuesta}
+El RMSE vuelve a las mismas unidades de la variable objetivo. Si $y$ está en pesos, RMSE está en pesos; MSE está en pesos cuadrados.
+\end{respuesta}
+
+\pregunta{5. Si la variable objetivo está medida en pesos, ¿en qué unidades se expresa MAE?}
+\begin{respuesta}
+En pesos.
+\end{respuesta}
+
+\pregunta{6. ¿En qué unidades se expresa RMSE?}
+\begin{respuesta}
+En las mismas unidades de $y$; por ejemplo, pesos.
+\end{respuesta}
+
+\pregunta{7. ¿Un valor más grande o más pequeño de MAE representa mejores predicciones?}
+\begin{respuesta}
+Más pequeño. El valor ideal es $0$, que significaría predicciones exactas en todas las observaciones evaluadas.
+\end{respuesta}
+
+\pregunta{8. Calcula MAE para $y=(10,20,30)$, $\hat y=(12,18,27)$.}
+\begin{respuesta}
+Los errores son $(-2,2,3)$ y los errores absolutos $(2,2,3)$. Por tanto,
+\[
+\mathrm{MAE}=\frac{2+2+3}{3}=\frac73\approx 2.333.
+\]
+\end{respuesta}
+
+\pregunta{9. Calcula MSE para los mismos datos.}
+\begin{respuesta}
+\[
+\mathrm{MSE}=\frac{(-2)^2+2^2+3^2}{3}=\frac{4+4+9}{3}=\frac{17}{3}\approx5.667.
+\]
+\end{respuesta}
+
+\pregunta{10. Calcula RMSE para los mismos datos.}
+\begin{respuesta}
+\[
+\mathrm{RMSE}=\sqrt{\frac{17}{3}}\approx 2.380.
+\]
+\end{respuesta}
+
+% ============================================================
+\section{Evaluación de modelos de clasificación}
+
+\subsection*{Matriz de confusión binaria}
+\begin{center}
+\begin{tikzpicture}
+\matrix[matrix of nodes,
+  nodes={draw,minimum width=3cm,minimum height=1.2cm,align=center},
+  row 1/.style={nodes={fill=black!6,font=\bfseries}},
+  column 1/.style={nodes={fill=black!6,font=\bfseries}}
+] (m) {
+ & Predicho $+$ & Predicho $-$ \\
+Real $+$ & TP & FN \\
+Real $-$ & FP & TN \\
+};
+\node[above=4mm of m] {Las filas representan la realidad; las columnas, la predicción};
+\end{tikzpicture}
+\end{center}
+
+\[
+\mathrm{Accuracy}=\frac{TP+TN}{TP+TN+FP+FN},\quad
+\mathrm{Precision}=\frac{TP}{TP+FP},\quad
+\mathrm{Recall}=\frac{TP}{TP+FN}.
+\]
+\[
+F_1=2\frac{\mathrm{Precision}\cdot\mathrm{Recall}}{\mathrm{Precision}+\mathrm{Recall}}.
+\]
+
+\pregunta{1. ¿Qué significa un falso positivo?}
+\begin{respuesta}
+El modelo predice la clase positiva, pero la observación en realidad pertenece a la clase negativa. Es una «alarma» incorrecta.
+\end{respuesta}
+
+\pregunta{2. ¿Qué significa un falso negativo?}
+\begin{respuesta}
+El modelo predice la clase negativa, pero la observación era realmente positiva. Es un caso positivo que el sistema no detectó.
+\end{respuesta}
+
+\pregunta{3. ¿Qué mide accuracy?}
+\begin{respuesta}
+La fracción total de predicciones correctas: positivos y negativos correctamente clasificados sobre el total de observaciones.
+\end{respuesta}
+
+\pregunta{4. ¿Qué mide precision?}
+\begin{respuesta}
+Entre todo lo que el modelo \textbf{predijo como positivo}, qué proporción realmente era positiva. Responde: «cuando el modelo dice positivo, ¿qué tan frecuentemente tiene razón?»
+\end{respuesta}
+
+\pregunta{5. ¿Qué mide recall?}
+\begin{respuesta}
+Entre todos los casos \textbf{realmente positivos}, qué proporción fue detectada. Responde: «de los positivos existentes, ¿cuántos encontró el modelo?»
+\end{respuesta}
+
+\pregunta{6. ¿Qué combina el F1-score?}
+\begin{respuesta}
+Combina precision y recall mediante su media armónica, por lo que un valor alto requiere que ambas sean razonablemente altas.
+\end{respuesta}
+
+\pregunta{7. Construye una matriz de confusión a partir de una lista pequeña de predicciones.}
+\begin{respuesta}
+Ejemplo: realidad $(1,0,1,1,0,0)$ y predicción $(1,1,1,0,0,0)$. Se obtiene $TP=2$, $FN=1$, $FP=1$, $TN=2$:
+\[
+\begin{array}{c|cc}
+&\hat y=1&\hat y=0\\\hline
+y=1&2&1\\
+y=0&1&2
+\end{array}
+\]
+\end{respuesta}
+
+\pregunta{8. Calcula accuracy a partir de una matriz de confusión.}
+\begin{respuesta}
+Se suman los aciertos de la diagonal y se dividen entre el total: $\mathrm{Accuracy}=(TP+TN)/N$. En el ejemplo anterior: $(2+2)/6=2/3\approx66.7\%$.
+\end{respuesta}
+
+\pregunta{9. Calcula precision.}
+\begin{respuesta}
+$\mathrm{Precision}=TP/(TP+FP)$. En el ejemplo: $2/(2+1)=2/3\approx66.7\%$.
+\end{respuesta}
+
+\pregunta{10. Calcula recall.}
+\begin{respuesta}
+$\mathrm{Recall}=TP/(TP+FN)$. En el ejemplo: $2/(2+1)=2/3\approx66.7\%$.
+\end{respuesta}
+
+\pregunta{11. Calcula F1-score.}
+\begin{respuesta}
+Con precision $=2/3$ y recall $=2/3$,
+\[
+F_1=2\frac{(2/3)(2/3)}{2/3+2/3}=\frac23\approx66.7\%.
+\]
+\end{respuesta}
+
+\pregunta{12. Da un ejemplo donde un falso positivo sea especialmente costoso.}
+\begin{respuesta}
+Un sistema de bloqueo automático que marque una transacción legítima como fraude y cancele una compra crítica. El costo proviene de actuar sobre una alarma incorrecta.
+\end{respuesta}
+
+\pregunta{13. Da un ejemplo donde un falso negativo sea especialmente costoso.}
+\begin{respuesta}
+Un detector de fraude que clasifique una transacción fraudulenta como legítima. El sistema deja pasar precisamente el caso que debía detectar.
+\end{respuesta}
+
+\pregunta{14. ¿Por qué la métrica apropiada depende del problema?}
+\begin{respuesta}
+Porque distintos errores tienen costos distintos. Si es muy grave perder positivos, interesa recall; si es muy grave generar falsas alarmas, interesa precision; si las clases están balanceadas y los costos son comparables, accuracy puede ser informativa.
+\end{respuesta}
+
+% ============================================================
+\section{Clases desbalanceadas}
+
+\pregunta{1. ¿Qué significa que las clases estén desbalanceadas?}
+\begin{respuesta}
+Que algunas clases contienen muchas más observaciones que otras. Por ejemplo, 98\% negativos y 2\% positivos.
+\end{respuesta}
+
+\pregunta{2. Si el 99\% de las observaciones pertenece a una misma clase, ¿qué accuracy obtiene un clasificador que siempre predice esa clase?}
+\begin{respuesta}
+99\% de accuracy, aunque no detecte ningún ejemplo de la clase minoritaria.
+\end{respuesta}
+
+\pregunta{3. ¿Por qué ese resultado puede ser engañoso?}
+\begin{respuesta}
+Porque el accuracy está dominado por la clase mayoritaria. El modelo puede parecer excelente y, al mismo tiempo, tener recall igual a cero para la clase minoritaria.
+\end{respuesta}
+
+\pregunta{4. ¿Qué otras métricas revisarías?}
+\begin{respuesta}
+Precision, recall, F1-score y la matriz de confusión. También puede ser útil medir métricas por clase, según el objetivo del problema.
+\end{respuesta}
+
+\pregunta{5. ¿Cuándo podría ser particularmente importante recall?}
+\begin{respuesta}
+Cuando perder un positivo real es muy costoso. Por ejemplo, en una primera etapa de detección de fraude interesa descubrir la mayor fracción posible de transacciones fraudulentas.
+\end{respuesta}
+
+\pregunta{6. ¿Cuándo podría ser particularmente importante precision?}
+\begin{respuesta}
+Cuando actuar sobre un falso positivo sea costoso. Por ejemplo, si cada alarma genera una revisión manual muy cara, queremos que una gran proporción de las alarmas sea correcta.
+\end{respuesta}
+
+\pregunta{7. ¿Por qué no existe una única métrica que sea siempre la mejor para cualquier problema?}
+\begin{respuesta}
+Porque las métricas enfatizan aspectos distintos del error y los costos del mundo real cambian entre aplicaciones. La elección de métrica forma parte de la definición del objetivo.
+\end{respuesta}
+
+% ============================================================
+\section{Parámetros e hiperparámetros}
+
+\begin{center}
+\begin{tikzpicture}[node distance=12mm,box/.style={draw,rounded corners,align=center,minimum width=5cm,minimum height=1cm}]
+\node[box,fill=blue!6] (p) {Parámetros\\aprendidos de los datos};
+\node[box,fill=green!8,right=18mm of p] (h) {Hiperparámetros\\configuran el aprendizaje};
+\node[below=7mm of p,align=center] {Ej.: coeficientes de regresión,\\pesos de una red};
+\node[below=7mm of h,align=center] {Ej.: profundidad de árbol,\\fuerza de regularización};
+\end{tikzpicture}
+\end{center}
+
+\pregunta{1. ¿Cuál es la diferencia entre parámetro e hiperparámetro?}
+\begin{respuesta}
+Un \textbf{parámetro} se estima a partir de los datos durante el entrenamiento. Un \textbf{hiperparámetro} controla el algoritmo, la arquitectura o la complejidad y se elige fuera del ajuste ordinario de parámetros.
+\end{respuesta}
+
+\pregunta{2. ¿Quién determina los parámetros del modelo?}
+\begin{respuesta}
+El algoritmo de entrenamiento, optimizando algún criterio con los datos de entrenamiento.
+\end{respuesta}
+
+\pregunta{3. ¿Cómo se pueden seleccionar los hiperparámetros?}
+\begin{respuesta}
+Comparando configuraciones mediante un conjunto de validación o validación cruzada. Se elige la configuración que tenga mejor desempeño según la métrica definida.
+\end{respuesta}
+
+\pregunta{4. ¿Qué conjunto de datos puede utilizarse para comparar diferentes hiperparámetros?}
+\begin{respuesta}
+El conjunto de \textbf{validación}, o los pliegues de validación en validación cruzada.
+\end{respuesta}
+
+\pregunta{5. ¿Por qué no es conveniente seleccionar hiperparámetros utilizando el conjunto de prueba?}
+\begin{respuesta}
+Porque el test dejaría de ser una evaluación independiente: cada comparación transmite información sobre ese conjunto y puede conducir a elegir una configuración adaptada a sus peculiaridades.
+\end{respuesta}
+
+% ============================================================
+\section{Interpretación básica de código con scikit-learn}
+
+\begin{lstlisting}
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.25, random_state=10
+)
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+\end{lstlisting}
+
+\pregunta{1. ¿Qué produce \texttt{train\_test\_split}?}
+\begin{respuesta}
+Divide las entradas $X$ y los objetivos $y$ en subconjuntos correspondientes para entrenamiento y prueba, conservando la alineación entre cada fila de $X$ y su etiqueta $y$.
+\end{respuesta}
+
+\pregunta{2. ¿Qué representa \texttt{test\_size=0.25}?}
+\begin{respuesta}
+Que aproximadamente el 25\% de las observaciones se asignará al conjunto de prueba y el 75\% al entrenamiento.
+\end{respuesta}
+
+\pregunta{3. Si tenemos 4,000 observaciones y utilizamos \texttt{test\_size=0.25}, aproximadamente ¿cuántas quedan para prueba?}
+\begin{respuesta}
+$4000(0.25)=1000$ observaciones.
+\end{respuesta}
+
+\pregunta{4. ¿Cuántas quedan para entrenamiento?}
+\begin{respuesta}
+$4000-1000=3000$ observaciones.
+\end{respuesta}
+
+\pregunta{5. ¿Qué ocurre durante \texttt{model.fit(X\_train, y\_train)}?}
+\begin{respuesta}
+El algoritmo utiliza $X_{train}$ y $y_{train}$ para estimar los parámetros internos del modelo según su procedimiento de entrenamiento.
+\end{respuesta}
+
+\pregunta{6. ¿Qué devuelve normalmente \texttt{model.predict(X\_test)}?}
+\begin{respuesta}
+Un vector de predicciones, una por fila de $X_{test}$. En regresión son valores numéricos; en clasificación normalmente son etiquetas de clase.
+\end{respuesta}
+
+\pregunta{7. ¿Por qué hacemos predicciones sobre $X_{test}$ y posteriormente las comparamos con $y_{test}$?}
+\begin{respuesta}
+Porque $X_{test}$ contiene observaciones no usadas para ajustar el modelo, mientras $y_{test}$ contiene sus respuestas reales. La comparación estima el error fuera de muestra.
+\end{respuesta}
+
+\pregunta{8. ¿Qué utilidad tiene establecer \texttt{random\_state}?}
+\begin{respuesta}
+Fija la semilla del generador pseudoaleatorio usado en la división. Con los mismos datos y el mismo valor se reproduce la misma partición, lo que facilita comparaciones y depuración.
+\end{respuesta}
+
+\pregunta{9. ¿Qué diferencia conceptual existe entre \texttt{fit} y \texttt{predict}?}
+\begin{respuesta}
+\texttt{fit} aprende parámetros a partir de datos etiquetados. \texttt{predict} usa el modelo ya ajustado para producir salidas sobre nuevas entradas.
+\end{respuesta}
+
+\pregunta{10. ¿Sería correcto evaluar el modelo comparando \texttt{model.predict(X\_test)} con \texttt{y\_train}? Explica.}
+\begin{respuesta}
+No. Las predicciones corresponden fila por fila a $X_{test}$ y deben compararse con $y_{test}$. $y_{train}$ pertenece a otras observaciones y normalmente incluso tiene longitud distinta.
+\end{respuesta}
+
+% ============================================================
+\section{Flujo general de un proyecto de aprendizaje de máquina}
+
+\begin{center}
+\begin{tikzpicture}[
+  node distance=7mm,
+  s/.style={draw,rounded corners,minimum width=9.5cm,minimum height=7mm,fill=blue!4,align=center},
+  a/.style={-Latex,thick}
+]
+\node[s] (a) {1--2. Definir problema y objetivo};
+\node[s,below=of a] (b) {3--6. Obtener, explorar, limpiar y construir características};
+\node[s,below=of b] (c) {7. Separar datos};
+\node[s,below=of c] (d) {8--10. Elegir modelo, entrenar y seleccionar hiperparámetros};
+\node[s,below=of d] (e) {11. Evaluar en datos no vistos};
+\node[s,below=of e] (f) {12. Desplegar};
+\node[s,below=of f] (g) {13--14. Monitorear y reentrenar};
+\foreach \u/\v in {a/b,b/c,c/d,d/e,e/f,f/g} \draw[a] (\u)--(\v);
+\draw[a,dashed] (g.east) -- ++(1.2,0) |- (b.east);
+\end{tikzpicture}
+\end{center}
+
+\pregunta{1. ¿Por qué es importante definir primero el problema?}
+\begin{respuesta}
+Porque determina qué queremos predecir, para quién, con qué datos, bajo qué restricciones y cómo se medirá el éxito. Sin una definición clara es posible optimizar una métrica que no resuelve la necesidad real.
+\end{respuesta}
+
+\pregunta{2. ¿Por qué debemos explorar los datos antes de entrenar?}
+\begin{respuesta}
+Para conocer distribuciones, tipos de variables, escalas, valores faltantes, posibles errores, desbalance de clases, relaciones entre variables y problemas de representatividad.
+\end{respuesta}
+
+\pregunta{3. ¿Qué problemas podemos buscar durante la limpieza de datos?}
+\begin{respuesta}
+Valores faltantes, duplicados, formatos inconsistentes, categorías mal escritas, unidades mezcladas, valores imposibles, registros corruptos y variables que producen fuga de información.
+\end{respuesta}
+
+\pregunta{4. ¿Por qué debemos definir una métrica de evaluación?}
+\begin{respuesta}
+Porque necesitamos una regla cuantitativa que traduzca el objetivo en desempeño medible. La métrica guía la comparación entre modelos y debe reflejar los tipos de errores relevantes.
+\end{respuesta}
+
+\pregunta{5. ¿En qué momento se separan los datos de entrenamiento y prueba?}
+\begin{respuesta}
+Temprano en el flujo, antes de usar información del test para tomar decisiones. Después, transformaciones que aprenden de los datos deben ajustarse sólo con entrenamiento y aplicarse al resto.
+\end{respuesta}
+
+\pregunta{6. ¿Qué ocurre durante el entrenamiento?}
+\begin{respuesta}
+El algoritmo ajusta los parámetros del modelo para reducir una función de pérdida o cumplir un criterio utilizando los datos de entrenamiento.
+\end{respuesta}
+
+\pregunta{7. ¿Qué ocurre durante la evaluación?}
+\begin{respuesta}
+Se generan predicciones sobre datos no usados para ajustar el modelo y se comparan con sus valores reales mediante métricas previamente elegidas.
+\end{respuesta}
+
+\pregunta{8. ¿Qué significa desplegar un modelo?}
+\begin{respuesta}
+Integrarlo en un entorno donde pueda recibir nuevas entradas y producir predicciones para usuarios, sistemas o procesos reales.
+\end{respuesta}
+
+\pregunta{9. ¿Por qué un modelo debe monitorearse después de ponerlo en producción?}
+\begin{respuesta}
+Porque los datos, procesos y poblaciones pueden cambiar. Se deben vigilar desempeño, distribución de entradas, errores, tiempos de respuesta y posibles fallos operativos.
+\end{respuesta}
+
+\pregunta{10. ¿Por qué podría disminuir el desempeño de un modelo con el paso del tiempo?}
+\begin{respuesta}
+Porque puede cambiar la distribución de los datos o la relación entre entradas y objetivo. Este fenómeno suele llamarse \textbf{data drift} o \textbf{concept drift}, según qué parte del proceso cambie.
+\end{respuesta}
+
+% ============================================================
+\newpage
+\section{Ejercicios integradores resueltos}
+
+\subsection{Ejercicio 1: gasto mensual de clientes bancarios}
+Un banco quiere estimar cuánto dinero gastará cada cliente con su tarjeta durante el próximo mes.
+
+\begin{enumerate}[label=\alph*)]
+\item \textbf{Tipo de aprendizaje:} supervisado, porque se entrenaría con clientes históricos cuyo gasto posterior es conocido.
+\item \textbf{Clasificación o regresión:} regresión, porque el gasto es una cantidad numérica continua.
+\item \textbf{Variable objetivo:} gasto total del cliente durante el próximo mes.
+\item \textbf{Cuatro características posibles:} gasto de los últimos meses, ingreso estimado, número de transacciones recientes y saldo o línea de crédito utilizada. También podrían usarse antigüedad del cliente o estacionalidad.
+\item \textbf{Métrica apropiada:} MAE o RMSE. MAE expresa el error típico directamente en unidades monetarias; RMSE penaliza con mayor fuerza errores grandes.
+\end{enumerate}
+
+\subsection{Ejercicio 2: condición médica con 150 positivos de 10,000}
+
+\begin{enumerate}[label=\alph*)]
+\item \textbf{¿Existe desbalance?} Sí. La clase positiva representa
+\[
+\frac{150}{10000}=0.015=1.5\%,
+\]
+y la negativa 98.5\%.
+\item Si el modelo siempre predice «no presenta la condición», acierta los $9850$ negativos:
+\[
+\mathrm{Accuracy}=\frac{9850}{10000}=0.985=98.5\%.
+\]
+\item Ese 98.5\% no demuestra utilidad porque el modelo tendría $TP=0$ y $FN=150$: no detectaría a ningún paciente positivo, por lo que su recall positivo sería $0$.
+\item \textbf{FP:} clasificar como positivo a un paciente que no tiene la condición. \textbf{FN:} clasificar como negativo a un paciente que sí la tiene.
+\item Revisaría matriz de confusión, recall, precision y F1-score. Si el objetivo principal es no perder casos positivos, recall merece atención especial.
+\end{enumerate}
+
+\subsection{Ejercicio 3: entrenamiento vs. validación}
+
+\begin{center}
+\begin{tabular}{lcc}
+\toprule
+Modelo & Error entrenamiento & Error validación\\
+\midrule
+M1 & 18\% & 20\%\\
+M2 & 8\% & 10\%\\
+M3 & 2\% & 17\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{M1.} Los dos errores son relativamente altos y cercanos. Bajo la interpretación usual de que menor error es mejor, hay evidencia de \textbf{subajuste}: el modelo ni siquiera logra un ajuste fuerte en entrenamiento y tampoco mejora fuera de muestra.
+
+\textbf{M2.} Tiene errores bajos y cercanos: 8\% en entrenamiento y 10\% en validación. Es el patrón más consistente con un modelo que ajusta bien y \textbf{generaliza razonablemente}.
+
+\textbf{M3.} El error de entrenamiento es extremadamente pequeño (2\%) pero el de validación sube a 17\%. La brecha de 15 puntos porcentuales es evidencia clara de \textbf{sobreajuste}.
+
+\begin{advertencia}
+El diagnóstico usa sólo la información relativa de la tabla. En una aplicación real también necesitaríamos saber qué significa exactamente ese error y cuál es un nivel aceptable para el problema.
+\end{advertencia}
+
+\subsection{Ejercicio 4: métricas de clasificación}
+Datos: $TP=40$, $TN=900$, $FP=30$, $FN=30$. El total es
+\[
+N=40+900+30+30=1000.
+\]
+
+\paragraph{a) Accuracy}
+\[
+\mathrm{Accuracy}=\frac{40+900}{1000}=0.94=94\%.
+\]
+Interpretación: el 94\% de todas las observaciones fue clasificado correctamente.
+
+\paragraph{b) Precision}
+\[
+\mathrm{Precision}=\frac{40}{40+30}=\frac{40}{70}\approx0.5714=57.14\%.
+\]
+Interpretación: de todos los casos que el modelo marcó como positivos, aproximadamente 57.14\% sí eran positivos.
+
+\paragraph{c) Recall}
+\[
+\mathrm{Recall}=\frac{40}{40+30}=\frac{40}{70}\approx0.5714=57.14\%.
+\]
+Interpretación: de todos los positivos reales, el modelo detectó aproximadamente 57.14\%.
+
+\paragraph{d) F1-score}
+Como precision y recall son iguales,
+\[
+F_1=2\frac{(0.5714)(0.5714)}{0.5714+0.5714}\approx0.5714=57.14\%.
+\]
+Interpretación: el balance entre precision y recall es moderado, a pesar de que el accuracy total es alto. Esto ilustra por qué accuracy puede ocultar un desempeño pobre sobre la clase positiva.
+
+\subsection{Ejercicio 5: métricas de regresión}
+\[
+y=(100,150,200,250),\qquad \hat y=(110,140,180,270).
+\]
+
+\paragraph{a) Errores $y_i-\hat y_i$}
+\[
+(-10,\ 10,\ 20,\ -20).
+\]
+
+\paragraph{b) Errores absolutos}
+\[
+(10,\ 10,\ 20,\ 20).
+\]
+
+\paragraph{c) MAE}
+\[
+\mathrm{MAE}=\frac{10+10+20+20}{4}=15.
+\]
+El modelo se equivoca, en magnitud absoluta, 15 unidades en promedio.
+
+\paragraph{d) MSE}
+\[
+\mathrm{MSE}=\frac{100+100+400+400}{4}=250.
+\]
+Es el promedio de errores cuadrados; castiga más los errores de magnitud 20 que los de magnitud 10.
+
+\paragraph{e) RMSE}
+\[
+\mathrm{RMSE}=\sqrt{250}=5\sqrt{10}\approx15.811.
+\]
+Está nuevamente en las unidades originales de $y$ y, debido al cuadrado previo, refleja con mayor sensibilidad los errores grandes que MAE.
+
+\subsection{Ejercicio 6: lectura de código}
+\begin{lstlisting}
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y,
+    test_size=0.30,
+    random_state=10
+)
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+\end{lstlisting}
+
+\begin{enumerate}[label=\alph*)]
+\item \textbf{Entrenamiento:} aproximadamente 70\% de los datos.
+\item \textbf{Prueba:} aproximadamente 30\% de los datos.
+\item El modelo aprende usando $X_{train}$ y $y_{train}$.
+\item \texttt{predictions} se genera para las observaciones contenidas en $X_{test}$.
+\item Las predicciones deben compararse contra $y_{test}$.
+\item \texttt{random\_state=10} hace reproducible la parte pseudoaleatoria de la división: al repetir el procedimiento con los mismos datos y parámetros se obtiene la misma partición.
+\end{enumerate}
+
+% ============================================================
+\newpage
+\section{Resumen de memoria rápida}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{p{0.27\textwidth}p{0.66\textwidth}}
+\toprule
+Concepto & Regla mental\\
+\midrule
+Supervisado & Hay $y$: aprendemos $X\mapsto y$.\\
+No supervisado & No hay $y$: buscamos estructura en $X$.\\
+Clasificación & Objetivo categórico.\\
+Regresión & Objetivo numérico.\\
+Train & Aprende parámetros.\\
+Validation & Elige modelo e hiperparámetros.\\
+Test & Evalúa al final.\\
+Subajuste & Error train alto + error no visto alto.\\
+Sobreajuste & Error train muy bajo + error no visto bastante mayor.\\
+MAE & Magnitud absoluta promedio del error.\\
+MSE & Error cuadrático promedio; castiga errores grandes.\\
+RMSE & $\sqrt{\mathrm{MSE}}$; mismas unidades que $y$.\\
+Precision & De lo predicho positivo, ¿cuánto sí era positivo?\\
+Recall & De lo realmente positivo, ¿cuánto encontré?\\
+F1 & Balance armónico entre precision y recall.\\
+Parámetro & Lo aprende el algoritmo.\\
+Hiperparámetro & Lo seleccionamos para configurar el aprendizaje.\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{clave}
+\[
+\boxed{\text{Buen ML} = \text{objetivo bien definido} + \text{datos correctos} + \text{validación limpia} + \text{generalización}}
+\]
+\end{clave}
+
+\end{document}
