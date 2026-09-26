@@ -1,44 +1,75 @@
-# ML — Guía resuelta del Parcial I
+# LDS1071 — Machine Learning
 
-Guía de estudio en LaTeX para **Aprendizaje de Máquina (LDS1071)**. El documento responde las preguntas de la guía del primer parcial e incluye:
+Repositorio del curso **LDS1071 Aprendizaje de Máquina**.
 
-- fundamentos de aprendizaje supervisado y no supervisado;
-- representación de `X` y `y`;
-- entrenamiento, validación y prueba;
-- generalización, underfitting y overfitting;
-- MAE, MSE y RMSE;
-- matriz de confusión, accuracy, precision, recall y F1;
-- clases desbalanceadas;
-- parámetros e hiperparámetros;
-- lectura básica de scikit-learn;
-- flujo completo de un proyecto de ML;
-- los seis ejercicios integradores resueltos;
-- diagramas hechos directamente en TikZ/PGFPlots.
+La organización sigue el **orden pedagógico de las lectures**. Los PDFs y notebooks comienzan con el número de la clase a la que pertenecen, de modo que el orden alfabético de GitHub coincide con el orden del curso.
 
-## Compilar localmente
+## Estructura
 
-Con una distribución de LaTeX que incluya `latexmk`:
-
-```bash
-latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+```text
+.
+├── course-material/
+│   ├── lectures/        # PDFs del curso, en orden de clase
+│   └── extras/          # avisos, actividades y material auxiliar
+├── notebooks/           # notebooks propios/complementarios, ordenados por lecture
+├── submissions/         # archivos finales entregados
+├── study-guide/         # guías de estudio
+├── docs/
+└── hands-mlp/           # subtree de ageron/handson-mlp
 ```
 
-O con `pdflatex`:
+## Convención de lectures
 
-```bash
-pdflatex -interaction=nonstopmode main.tex
-pdflatex -interaction=nonstopmode main.tex
+```text
+NN_Topic-1_Topic-2.pdf
 ```
 
-El PDF resultante será `main.pdf`.
+Ejemplos:
 
-## Compilar en GitHub Actions
+```text
+09_Distance-based-clustering_Kmeans.pdf
+10_DBSCAN_GMM.pdf
+11_GMM_Likelihood_Hierarchical-Clustering.pdf
+```
 
-El workflow **Build study guide PDF** es manual. En GitHub:
+Una lecture puede contener varios temas; el nombre intenta reflejar la secuencia real del PDF, no asignar artificialmente un solo tema a cada clase.
 
-1. abre **Actions**;
-2. selecciona **Build study guide PDF**;
-3. pulsa **Run workflow**;
-4. al terminar, descarga el artifact con `main.pdf`.
+## Convención de notebooks
 
-No se compila automáticamente en cada `push`.
+```text
+NN_Topic_Subtopic_short-title.ipynb
+```
+
+Ejemplos:
+
+```text
+09_Distance-based-clustering_Kmeans-sklearn.ipynb
+10_GMM_Bivariate-normal-density.ipynb
+11_Hierarchical-Clustering_Agglomerative-sklearn.ipynb
+```
+
+Los notebooks son material complementario del curso y de **Hands-On Machine Learning**. El mapeo lecture → notebook → capítulo upstream está documentado en `docs/course-map.md`.
+
+## Submissions
+
+`submissions/` contiene únicamente los artefactos finales entregados, con matrícula, nombre y actividad en el nombre del archivo.
+
+## Guía del Parcial I
+
+```text
+study-guide/partial-1/main.tex
+```
+
+Compilar localmente:
+
+```bash
+latexmk -pdf -interaction=nonstopmode -halt-on-error study-guide/partial-1/main.tex
+```
+
+El workflow **Build study guide PDF** también permite compilarla manualmente desde GitHub Actions.
+
+## Hands-On Machine Learning
+
+El repositorio de Aurélien Géron se mantiene como **git subtree** bajo `hands-mlp/`.
+
+Consulta `docs/handson-mlp-subtree.md` para agregarlo y actualizarlo desde upstream.

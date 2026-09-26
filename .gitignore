@@ -1,3 +1,4 @@
+# LaTeX
 *.aux
 *.fdb_latexmk
 *.fls
@@ -5,4 +6,18 @@
 *.out
 *.toc
 *.synctex.gz
-main.pdf
+*.pdf.sync
+
+# Python / Jupyter
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+
+# Local build products
+study-guide/**/*.pdf
