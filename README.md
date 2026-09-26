@@ -2,53 +2,59 @@
 
 Repositorio del curso **LDS1071 Aprendizaje de Máquina**.
 
-La organización separa el material distribuido en clase, los notebooks de trabajo, las entregas finales y las guías de estudio.
+La organización sigue el **orden pedagógico de las lectures**. Los PDFs y notebooks comienzan con el número de la clase a la que pertenecen, de modo que el orden alfabético de GitHub coincide con el orden del curso.
 
 ## Estructura
 
 ```text
 .
-├── course-material/     # PDFs y material oficial del curso
-├── notebooks/           # prácticas, actividades, ejemplos y exploraciones
-├── submissions/         # archivos finales efectivamente entregados
-├── study-guide/         # guías de estudio en LaTeX
-├── docs/                # documentación del repositorio
+├── course-material/
+│   ├── lectures/        # PDFs del curso, en orden de clase
+│   └── extras/          # avisos, actividades y material auxiliar
+├── notebooks/           # notebooks propios/complementarios, ordenados por lecture
+├── submissions/         # archivos finales entregados
+├── study-guide/         # guías de estudio
+├── docs/
 └── hands-mlp/           # subtree de ageron/handson-mlp
 ```
 
-## Convenciones de nombres
-
-### PDFs de material del curso
+## Convención de lectures
 
 ```text
-seccion.subseccion_short-title.pdf
+NN_Topic-1_Topic-2.pdf
 ```
 
 Ejemplos:
 
 ```text
-06.00_learning-theory.pdf
-10.00_distance-based-clustering.pdf
-12.00_hierarchical-clustering.pdf
+09_Distance-based-clustering_Kmeans.pdf
+10_DBSCAN_GMM.pdf
+11_GMM_Likelihood_Hierarchical-Clustering.pdf
 ```
 
-### Entregas
+Una lecture puede contener varios temas; el nombre intenta reflejar la secuencia real del PDF, no asignar artificialmente un solo tema a cada clase.
+
+## Convención de notebooks
 
 ```text
-ID-Nombre-Actividad.ext
+NN_Topic_Subtopic_short-title.ipynb
 ```
 
-Ejemplo:
+Ejemplos:
 
 ```text
-175199-Heriberto_Espino_Montelongo-04-Segmentacion_imagenes_KMeans.zip
+09_Distance-based-clustering_Kmeans-sklearn.ipynb
+10_GMM_Bivariate-normal-density.ipynb
+11_Hierarchical-Clustering_Agglomerative-sklearn.ipynb
 ```
 
-`submissions/` contiene únicamente archivos finales entregados; los notebooks de trabajo permanecen en `notebooks/`.
+Los notebooks son material complementario del curso y de **Hands-On Machine Learning**. El mapeo lecture → notebook → capítulo upstream está documentado en `docs/course-map.md`.
+
+## Submissions
+
+`submissions/` contiene únicamente los artefactos finales entregados, con matrícula, nombre y actividad en el nombre del archivo.
 
 ## Guía del Parcial I
-
-Fuente:
 
 ```text
 study-guide/partial-1/main.tex
