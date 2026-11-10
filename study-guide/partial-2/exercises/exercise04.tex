@@ -1,0 +1,34 @@
+\section{Gaussian mixture models: interpretation, BIC, and AIC}
+\label{sec:ex4}
+\textbf{Given:} Partially overlapping elliptical groups; model-selection scores:
+\begin{center}\begin{tabular}{@{}rrrrr@{}}\toprule Components&1&2&3&4\\\midrule BIC&790&620&574&590\\ AIC&775&585&520&515\\\bottomrule\end{tabular}\end{center}
+
+\subq{(a) Which component count is selected by each criterion?}
+Both criteria are minimized, not maximized. For BIC, the minimum is $\boxed{574}$ at $\boxed{K=3}$. For AIC, the minimum is $\boxed{515}$ at $\boxed{K=4}$. Different choices are possible because they penalize complexity differently; no sample size or parameter counts are supplied here for decomposing their numerical values.
+
+\subq{(b) Why can a GMM represent these data better than $K$-means?}
+A Gaussian mixture specifies a distribution rather than only a nearest-centroid partition:
+\[
+p(x)=\sum_{k=1}^{K}\pi_k\,\mathcal N(x\mid\mu_k,\Sigma_k),\qquad
+\pi_k\geq0,\quad \sum_k\pi_k=1.
+\]
+Each covariance matrix $\Sigma_k$ can represent an elliptical orientation and spread. Overlapping components may assign positive probability to the same observation, unlike $K$-means' hard membership. This flexibility can be advantageous for elliptical overlapping groups, though the Gaussian-family assumption may be wrong for other shapes.
+
+\subq{(c) Meaning of a component-membership probability of $0.7$}
+The posterior \emph{responsibility} for component $k$ is
+\[
+\gamma_{ik}=P(Z_i=k\mid x_i)
+=\frac{\pi_k\mathcal N(x_i\mid\mu_k,\Sigma_k)}{\sum_{\ell=1}^{K}\pi_\ell\mathcal N(x_i\mid\mu_\ell,\Sigma_\ell)}.
+\]
+A value $\gamma_{ik}=0.7$ means that, \emph{conditional on the fitted GMM and the observation}, component $k$ has estimated probability $70\%$ of being the latent generator of $x_i$. The remaining component probabilities sum to $0.3$. It is \emph{not} a statement that the observation is classified correctly with $70\%$ probability.
+
+\subq{(d) BIC's fit--complexity trade-off}
+For maximized log-likelihood $\hat\ell$, parameter count $q$, and sample size $n$:
+\[
+\mathrm{BIC}=q\log n-2\hat\ell,\qquad
+\mathrm{AIC}=2q-2\hat\ell.
+\]
+A more complex model often raises $\hat\ell$ (better training fit) but also increases $q$ (larger penalty). BIC imposes a penalty $\log n$ per parameter, rather than AIC's constant $2$. When $n>e^2\approx7.39$, BIC's per-parameter penalty is larger; neither score is a guarantee that the chosen model is the true data-generating model.
+\begin{answer}
+Choose $\boxed{3}$ components under BIC and $\boxed{4}$ under AIC. The disagreement illustrates the competing penalties for model complexity.
+\end{answer}

@@ -1,0 +1,28 @@
+\section{Silhouette coefficient}
+\label{sec:ex7}
+\textbf{Given:} $a(x_1)=3$, $b(x_1)=9$; $a(x_2)=5$, $b(x_2)=4$. Here $a(i)$ is the mean dissimilarity to other points of the same cluster and $b(i)$ the smallest mean dissimilarity to points in another cluster.
+
+\subq{(a) Calculate both silhouettes}
+Use the exact formula supplied by the guide:
+\[
+s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}}.
+\]
+For $x_1$, $b=9>a=3$, so the denominator is $9$:
+\[
+s(x_1)=\frac{9-3}{\max\{3,9\}}=\frac{6}{9}
+=\boxed{\frac{2}{3}\approx0.667}.
+\]
+For $x_2$, $b=4<a=5$, so the denominator is $5$:
+\[
+s(x_2)=\frac{4-5}{\max\{5,4\}}=-\frac15
+=\boxed{-0.2}.
+\]
+
+\subq{(b) Interpret the signs}
+$x_1$ has a positive silhouette, suggesting that on average it is substantially closer to its own cluster than to its closest competing cluster. $x_2$ has a negative silhouette: on average it lies closer to an alternative cluster than to its assigned one, potentially indicating questionable placement or overlapping groups. A coefficient near $0$ indicates a borderline observation; the range is $[-1,1]$.
+
+\subq{(c) Does a high mean silhouette guarantee domain meaning?}
+No. Silhouette quantifies within- versus between-cluster \emph{distance} relationships; it does not test semantic validity, causal explanation, external labels, clinical usefulness, or interpretability. For example, document clusters might separate by document length or writing style while failing to correspond to desired research topics. Domain review, cluster exemplars, stability, and external validation (if available) remain important.
+\begin{answer}
+$\boxed{s(x_1)\approx0.667}$ indicates good separation; $\boxed{s(x_2)=-0.2}$ suggests possible misassignment or overlap.
+\end{answer}

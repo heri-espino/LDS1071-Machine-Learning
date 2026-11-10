@@ -1,0 +1,228 @@
+\section{Consolidated formula reference}
+\label{sec:formulas}
+This appendix collects the equations needed to solve the 16 exercises and a few closely related identities that help explain \emph{where the formulas come from}. Symbols are defined locally where necessary. The TF--IDF definition follows the \emph{exact} unsmoothed, base-10 convention of the supplied guide.
+
+\subsection{Distances, cluster centroids, and $K$-means}
+For $x,y\in\R^p$, Euclidean distance and squared distance are
+\[
+d_2(x,y)=\norm{x-y}_2=\sqrt{\sum_{j=1}^{p}(x_j-y_j)^2},\qquad
+d_2^2(x,y)=\sum_{j=1}^{p}(x_j-y_j)^2.
+\]
+For a nonempty cluster $C_k$ with $n_k$ points, the centroid is
+\[
+\boxed{\mu_k=\frac{1}{n_k}\sum_{i\in C_k}x_i},\qquad n_k=\abs{C_k}.
+\]
+The $K$-means assignment rule and within-cluster sum of squares (\emph{inertia}) are
+\[
+\boxed{c(i)=\argmin_{k=1,\ldots,K}\norm{x_i-\mu_k}_2^2},\qquad
+\boxed{J=\sum_{i=1}^{n}\norm{x_i-\mu_{c(i)}}_2^2
+=\sum_{k=1}^{K}\sum_{i\in C_k}\norm{x_i-\mu_k}_2^2}.
+\]
+\textbf{Why does the arithmetic mean minimize squared distances?} For fixed assignments, expand and differentiate $J_k(\mu)=\sum_{i\in C_k}\norm{x_i-\mu}_2^2$:
+\[
+\nabla_{\mu}J_k(\mu)=2n_k\mu-2\sum_{i\in C_k}x_i=0
+\quad\Longrightarrow\quad\mu=\frac1{n_k}\sum_{i\in C_k}x_i.
+\]
+The Hessian $2n_k I$ is positive definite for $n_k>0$, so this is the unique minimizer. The total-inertia gain from adding a cluster is $\Delta J_K=J_{K-1}-J_K$; the elbow heuristic looks for a sharp decline in this gain rather than minimizing $J_K$ over arbitrary $K$.
+
+\subsection{DBSCAN: core, border, noise}
+For neighborhood radius $\varepsilon>0$ and minimum count $m=\texttt{min\_samples}$,
+\[
+\boxed{N_{\varepsilon}(x_i)=\{x_j:d(x_j,x_i)\le\varepsilon\}},\qquad
+\boxed{x_i\text{ core }\iff \abs{N_\varepsilon(x_i)}\ge m}.
+\]
+The core-point count \emph{includes the query point}. A border point is non-core but density-reachable from a core point; a noise observation is not density-reachable from any core point. In Scikit-Learn's DBSCAN label convention, $-1$ signifies noise.
+
+\subsection{Gaussian mixture models and information criteria}
+For a $p$-dimensional multivariate normal with positive-definite covariance $\Sigma_k$,
+\[
+\phi_p(x;\mu_k,\Sigma_k)=\frac{\exp\!\big(-\tfrac12(x-\mu_k)^\top\Sigma_k^{-1}(x-\mu_k)\big)}{(2\pi)^{p/2}\det(\Sigma_k)^{1/2}}.
+\]
+A $K$-component GMM has mixture weights $\pi_k\ge0$ satisfying $\sum_k\pi_k=1$ and density
+\[
+\boxed{p(x)=\sum_{k=1}^{K}\pi_k\phi_p(x;\mu_k,\Sigma_k)}.
+\]
+For $n$ independent observations, the likelihood and log-likelihood are
+\[
+L(\theta)=\prod_{i=1}^{n}p(x_i;\theta),\qquad
+\ell(\theta)=\sum_{i=1}^{n}\log\left(\sum_{k=1}^{K}\pi_k\phi_p(x_i;\mu_k,\Sigma_k)\right).
+\]
+The conditional component probability (\emph{responsibility}) is
+\[
+\boxed{\gamma_{ik}=P(Z_i=k\mid x_i)=\frac{\pi_k\phi_p(x_i;\mu_k,\Sigma_k)}{\sum_{\ell=1}^{K}\pi_\ell\phi_p(x_i;\mu_\ell,\Sigma_\ell)}}.
+\]
+As an \emph{optional methodological connection}, an expectation--maximization (EM) iteration for a full-covariance GMM computes $\gamma_{ik}$ in its E step and then updates
+\[
+N_k=\sum_i\gamma_{ik},\quad
+\pi_k^{\rm new}=\frac{N_k}{n},\quad
+\mu_k^{\rm new}=\frac1{N_k}\sum_i\gamma_{ik}x_i,\quad
+\Sigma_k^{\rm new}=\frac1{N_k}\sum_i\gamma_{ik}(x_i-\mu_k^{\rm new})(x_i-\mu_k^{\rm new})^\top.
+\]
+For maximized log-likelihood $\hat\ell$, $q$ free fitted parameters, and $n$ independent observations, the selection criteria are
+\[
+\boxed{\mathrm{AIC}=2q-2\hat\ell},\qquad
+\boxed{\mathrm{BIC}=q\log n-2\hat\ell}.
+\]
+\textbf{Selection rule:} the \emph{smaller} AIC or BIC is preferred \emph{among the compared fits}. The parameter count depends on covariance parameterization, weights, and number of mixture components.
+
+\subsection{Hierarchical clustering and dendrogram heights}
+For nonempty point sets (clusters) $A,B$, the distances are
+\[
+\boxed{d_{\rm single}(A,B)=\min_{a\in A,b\in B}d(a,b)},\qquad
+\boxed{d_{\rm complete}(A,B)=\max_{a\in A,b\in B}d(a,b)}.
+\]
+For reference, \emph{average linkage} is
+\[
+d_{\rm average}(A,B)=\frac1{\abs A\abs B}\sum_{a\in A}\sum_{b\in B}d(a,b),
+\]
+and \emph{centroid linkage} (a different rule) is
+\[
+d_{\rm centroid}(A,B)=d(\mu_A,\mu_B).
+\]
+A dendrogram's vertical merge height is the applicable linkage distance at that merge. Cutting at height $h$ leaves the connected components formed by merges occurring below that height; if a cut coincides with a merge height, state whether you include that merge.
+
+\subsection{Silhouette: per observation and average}
+For observation $x_i$ assigned to cluster $C_i$ with at least two members,
+\[
+a(i)=\frac1{\abs{C_i}-1}\sum_{x_j\in C_i\setminus\{x_i\}}d(x_i,x_j).
+\]
+For every other cluster $C\ne C_i$, compute the mean distance to its members; take the smallest such value:
+\[
+b(i)=\min_{C\ne C_i}\frac1{\abs C}\sum_{x_j\in C}d(x_i,x_j).
+\]
+The per-point silhouette and sample mean are
+\[
+\boxed{s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}}},\qquad
+\boxed{\bar s=\frac1n\sum_{i=1}^{n}s(i)}.
+\]
+The formula assumes the denominator is nonzero. Typical implementations define the score of a singleton cluster to be $0$, and silhouette is not defined when there is only one cluster or every observation has its own cluster.
+
+\subsection{PCA, eigenvalues, reconstruction, and dimension choice}
+For rows $x_i^\top$ of $X\in\R^{n\times p}$, define the empirical mean and sample covariance (using $n-1$):
+\[
+\bar x=\frac1n\sum_{i=1}^{n}x_i,\qquad
+\boxed{\hat\Sigma=\frac1{n-1}\sum_{i=1}^{n}(x_i-\bar x)(x_i-\bar x)^\top}.
+\]
+For symmetric positive-semidefinite covariance, $\hat\Sigma v_j=\lambda_j v_j$ with $\lambda_1\ge\cdots\ge\lambda_p\ge0$ and an orthonormal eigenbasis $v_i^\top v_j=\delta_{ij}$.
+\[
+\boxed{r_j=\frac{\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}},\qquad
+\boxed{R_q=\frac{\sum_{j=1}^{q}\lambda_j}{\sum_{\ell=1}^{p}\lambda_\ell}},\qquad
+\boxed{q_{\min}=\min\{q:R_q\ge\tau\}},
+\]
+where $r_j$ is each explained-variance fraction, $R_q$ is cumulative explained variance, and $\tau$ is the desired fraction (e.g., $0.85$).
+
+PC1 solves the variance-maximization problem
+\[
+\boxed{v_1\in\argmax_{\norm{v}_2=1}v^\top\hat\Sigma v};
+\quad \max_{\norm{v}_2=1}v^\top\hat\Sigma v=\lambda_1.
+\]
+Write $V_q=[v_1,\ldots,v_q]$; scores and reconstruction are
+\[
+Z=(X-\mathbf1\bar x^\top)V_q,\qquad
+\boxed{\hat X=ZV_q^\top+\mathbf1\bar x^\top}.
+\]
+PCA optimizes squared reconstruction error among $q$-dimensional linear orthogonal projections, \emph{not} supervised classification performance. Incremental PCA approximates principal directions across successive data batches and manages memory usage; nonlinear manifold methods seek a different type of representation.
+
+\subsection{Bag of Words, term frequency, and cosine}
+For vocabulary $V=(t_1,\ldots,t_m)$ and document $d_i$, the count and binary features are
+\[
+\boxed{X_{ij}=\operatorname{count}(t_j,d_i)},\qquad
+\boxed{B_{ij}=\mathbf1\{X_{ij}>0\}}.
+\]
+A simple length-normalized count is $\widetilde X_{ij}=X_{ij}/\sum_{\ell=1}^{m}X_{i\ell}$ for nonempty documents; $L_2$ normalized frequency is $X_{i\cdot}/\norm{X_{i\cdot}}_2$ for nonzero rows. These are distinct normalizations.
+
+\textbf{Exact course TF--IDF convention} (unsmoothed base $10$):
+\[
+\boxed{\mathrm{tf}_{t,d}=\begin{cases}1+\log_{10}\operatorname{count}(t,d),&\operatorname{count}(t,d)>0,\\0,&\operatorname{count}(t,d)=0,\end{cases}}
+\]
+\[
+\boxed{\mathrm{idf}_{t}=\log_{10}\!\left(\frac{N}{\mathrm{df}_{t}}\right)},\qquad
+\boxed{\mathrm{tfidf}_{t,d}=\mathrm{tf}_{t,d}\,\mathrm{idf}_{t}}.
+\]
+Here $N$ is corpus size and $\mathrm{df}_t$ the number of documents \emph{containing} term $t$; for a term to have an IDF under this formula, $\mathrm{df}_t>0$. Do not mix this definition with Scikit-Learn's default smoothing and offset.
+
+For nonzero text feature vectors $x,y\in\R^p$,
+\[
+\boxed{\operatorname{sim}_{\cos}(x,y)=\frac{x^\top y}{\norm{x}_2\norm{y}_2}},\qquad
+\boxed{\operatorname{sim}_{\cos}(x,\alpha x)=1\quad(\alpha>0)}.
+\]
+Cosine distance is commonly defined as $d_{\cos}(x,y)=1-\operatorname{sim}_{\cos}(x,y)$, though it is not in general a metric satisfying the triangle inequality. For $L_2$-normalized vectors $\tilde x,\tilde y$, an important identity is
+\[
+\norm{\tilde x-\tilde y}_2^2=2\big(1-\tilde x^\top\tilde y\big)
+=2d_{\cos}(x,y).
+\]
+This connects Euclidean and cosine separation when representations are normalized.
+
+\subsection{Logistic regression and leakage-free evaluation}
+For binary classification, $z=\beta_0+\beta^\top x$, the sigmoid model and decision rule are
+\[
+\boxed{p(y=1\mid x)=\sigma(z)=\frac1{1+e^{-z}}},\qquad
+\hat y=\mathbf1\{\sigma(z)\ge t\},
+\]
+where $t\in(0,1)$ is a selected classification threshold (often $0.5$ by default). Binary cross-entropy over $n$ independent training cases is
+\[
+\boxed{\mathcal L(\beta_0,\beta)=-\frac1n\sum_{i=1}^{n}\left[y_i\log p_i+(1-y_i)\log(1-p_i)\right]}.
+\]
+An illustrative $L_2$-regularized objective is $\mathcal L+\lambda\norm{\beta}_2^2$, with $\lambda\ge0$; implementation-specific conventions may use different scaling and omit the intercept from the penalty.
+
+A leakage-safe evaluation has the logical order
+\[
+\boxed{\text{split} \ \to\ \text{fit preprocessing on training}
+\ \to\ \text{fit model}\ \to\ \text{transform test}\ \to\ \text{predict}\ \to\ \text{score}}.
+\]
+In cross-validation, the same fitting restriction is applied separately \emph{inside every fold}.
+
+\subsection{Confusion matrix, precision, recall, $F_1$, and $F_\beta$}
+With \emph{positive} and \emph{negative} classes, let $TP,FP,FN,TN$ denote true positives, false positives, false negatives, and true negatives. Define $n=TP+FP+FN+TN$. When denominators are nonzero:
+\[
+\boxed{\operatorname{Accuracy}=\frac{TP+TN}{n}},\qquad
+\boxed{P=\operatorname{Precision}=\frac{TP}{TP+FP}},\qquad
+\boxed{R=\operatorname{Recall}=\frac{TP}{TP+FN}}.
+\]
+\[
+\boxed{F_1=\frac{2PR}{P+R}=\frac{2TP}{2TP+FP+FN}},\qquad
+\boxed{F_\beta=\frac{(1+\beta^2)PR}{\beta^2P+R}}.
+\]
+For $\beta>1$, $F_\beta$ weights recall more heavily than precision. Also,
+\[
+\boxed{\operatorname{FNR}=\frac{FN}{TP+FN}=1-R},\qquad
+\boxed{\operatorname{FPR}=\frac{FP}{FP+TN}}.
+\]
+If an expression's denominator vanishes, the formula alone is undefined; software may adopt an explicit \texttt{zero\_division} policy. Multiclass $F_1$ requires specifying \emph{macro}, \emph{weighted}, or \emph{micro} averaging, so comparisons must use the same definition.
+
+\subsection{Paired bootstrap for a performance difference}
+For test cases $i=1,\ldots,n$, define aligned evaluation triples $T_i=(y_i,\hat y_i^{(A)},\hat y_i^{(B)})$. For any scoring functional $S$ such as $F_1$,
+\[
+\boxed{\hat\Delta=S(y,\hat y^{(B)})-S(y,\hat y^{(A)})}.
+\]
+For replication $b$, independently draw $I_1^{(b)},\ldots,I_n^{(b)}$ uniformly from $\{1,\ldots,n\}$ \emph{with replacement}, then calculate
+\[
+\boxed{\Delta_b^*=S\big(y_{I^{(b)}},\hat y^{(B)}_{I^{(b)}}\big)
+-S\big(y_{I^{(b)}},\hat y^{(A)}_{I^{(b)}}\big)}.
+\]
+A simple $100(1-\alpha)\%$ percentile interval is
+\[
+\boxed{\mathrm{CI}_{1-\alpha}^{\rm perc}
+=\left[Q_{\alpha/2}(\Delta_1^*,\ldots,\Delta_B^*),
+Q_{1-\alpha/2}(\Delta_1^*,\ldots,\Delta_B^*)\right]}.
+\]
+This interval targets the test-sampling uncertainty \emph{conditional on the fitted models} when test cases can be treated as exchangeable draws from the target population. For dependent records use a resampling design that preserves dependence; to include training variability, additionally account for model refitting. Zero inside a two-sided interval means no conclusive direction at that nominal level, not proof of equal generalization.
+
+\subsection{Quick numerical answer sheet}
+\begin{center}\small
+\begin{tabularx}{\textwidth}{@{}lX@{}}\toprule
+Exercise&Check result\\\midrule
+1&Centroids $(2,10.5)$; inertia $6.5$; assignments unchanged.\\
+2&Elbow $K=3$ (improvements $460,230,25,15$).\\
+4&BIC selects $3$ components, AIC selects $4$.\\
+5&Single merge heights $3,4,6$; complete heights $3,6,13$.\\
+6&At $h=3$: $\{A,B\},\{C\},\{D,E\}$; at $h=6$: $\{A,B,C\},\{D,E\}$.\\
+7&Silhouettes $2/3$ and $-1/5$.\\
+8&Explained variances $60\%,20\%,10\%,10\%$; minimum $q=3$ for $85\%$.\\
+10&Counts: $(2,1,0)$, $(0,1,1)$, $(1,0,2)$.\\
+11&$\mathrm{tfidf}_{\rm red}\approx2.60206$; $\mathrm{tfidf}_{\rm sistema}=2$.\\
+12&Cosines $0.8$, $0$, and $1$ for $(u,v)$, $(u,w)$, $(u,3u)$.\\
+15&$TP=30,FP=10,FN=15,TN=65$; $F_1=12/17\approx0.70588$.\\
+16&Observed $F_1$ difference $0.02$; inferential uncertainty not supplied.\\\bottomrule
+\end{tabularx}
+\end{center}

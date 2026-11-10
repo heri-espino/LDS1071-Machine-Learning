@@ -1,0 +1,52 @@
+\section{TF--IDF calculations under the course convention}
+\label{sec:ex11}
+\textbf{Given:} $N=1000$ documents. The term \texttt{red} appears in $\mathrm{df}_{\rm red}=10$ documents and occurs $2$ times in the target document. The term \texttt{sistema} occurs in $\mathrm{df}_{\rm sistema}=100$ documents and appears $10$ times in that target document.
+
+\begin{important}
+The original guide explicitly requires the \emph{unsmoothed base-10} course definition below, \textbf{not} Scikit-Learn's default smoothed IDF. Mixing the conventions changes the answers.
+\end{important}
+\[
+\mathrm{tf}_{t,d}=\begin{cases}
+1+\log_{10}(\operatorname{count}(t,d)),&\operatorname{count}(t,d)>0,\\
+0,&\operatorname{count}(t,d)=0,
+\end{cases}\qquad
+\mathrm{idf}_{t}=\log_{10}\!\left(\frac{N}{\mathrm{df}_{t}}\right).
+\]
+
+\subq{(a) Calculate both inverse document frequencies}
+\[
+\mathrm{idf}_{\rm red}=\log_{10}\!\left(\frac{1000}{10}\right)=\log_{10}(100)=\boxed{2},
+\]
+\[
+\mathrm{idf}_{\rm sistema}=\log_{10}\!\left(\frac{1000}{100}\right)=\log_{10}(10)=\boxed{1}.
+\]
+The less widespread term \texttt{red} has double the IDF.
+
+\subq{(b) Compute term frequencies and TF--IDF weights}
+\textbf{Term frequencies:}
+\[
+\mathrm{tf}_{\rm red}=1+\log_{10}2\approx1+0.30103=1.30103,
+\]
+\[
+\mathrm{tf}_{\rm sistema}=1+\log_{10}10=2.
+\]
+\textbf{Multiply by IDF:}
+\[
+\begin{aligned}
+\mathrm{tfidf}_{\rm red}&=1.30103\times2=\boxed{2.60206},\\
+\mathrm{tfidf}_{\rm sistema}&=2\times1=\boxed{2.00000}.
+\end{aligned}
+\]
+\begin{center}\begin{tabular}{@{}lrrrr@{}}\toprule Term&Count&DF&TF&TF--IDF\\\midrule
+\texttt{red}&2&10&1.30103&2.60206\\
+\texttt{sistema}&10&100&2.00000&2.00000\\\bottomrule
+\end{tabular}\end{center}
+
+\subq{(c) Why can the less frequent term obtain a larger TF--IDF?}
+\texttt{sistema} occurs more often in the \emph{target document}, so it has larger TF. But \texttt{red} is rarer across the \emph{corpus}, so its IDF is larger. The latter effect dominates here: $2.60206>2$. TF--IDF balances a term's local prominence against its global commonness.
+
+\subq{(d) IDF of a term found in every document}
+If $\mathrm{df}_t=N$, then $\mathrm{idf}_t=\log_{10}(N/N)=\log_{10}(1)=\boxed{0}$. Under this definition, such a ubiquitous term has zero TF--IDF weight regardless of its positive within-document count.
+\begin{answer}
+$\boxed{\mathrm{tfidf}(\texttt{red})\approx2.60206>\mathrm{tfidf}(\texttt{sistema})=2.0}$; a corpus-wide term has IDF zero.
+\end{answer}

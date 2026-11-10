@@ -1,0 +1,47 @@
+\section{Supervised classification of 8,000 labeled reviews}
+\label{sec:ex14}
+\textbf{Given:} $8{,}000$ reviews labeled \emph{positive} or \emph{negative}. Consider a text-classification pipeline with TF--IDF and logistic regression.
+
+\subq{(a) Construct a \texttt{TfidfVectorizer} $\to$ \texttt{LogisticRegression} pipeline}
+\textbf{Step 1:} Reserve a stratified test split, so both classes remain represented. \textbf{Step 2:} Put every learned preprocessing operation and the classifier in one \texttt{Pipeline}. \textbf{Step 3:} Fit the pipeline \emph{only} on the training portion. \textbf{Step 4:} Predict on the untouched test portion and compute a confusion matrix, precision, recall, and $F_1$ (as appropriate).
+
+\begin{lstlisting}
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import classification_report
+
+# reviews: 8,000 review strings; labels: their binary labels.
+# The study guide provides no actual review dataset.
+X_train, X_test, y_train, y_test = train_test_split(
+    reviews, labels, test_size=0.20, random_state=42,
+    stratify=labels
+)
+
+model = Pipeline([
+    ("tfidf", TfidfVectorizer()),
+    ("classifier", LogisticRegression(max_iter=1000))
+])
+model.fit(X_train, y_train)
+predictions = model.predict(X_test)
+print(classification_report(y_test, predictions))
+\end{lstlisting}
+The code illustrates the procedure; it cannot be run without providing \texttt{reviews} and \texttt{labels}. It does not claim results for nonexistent data.
+
+\subq{(b) Explain \texttt{fit}, \texttt{transform}, and \texttt{predict}}
+\begin{itemize}
+\item \texttt{fit}: learn parameters from training data. \texttt{TfidfVectorizer.fit} learns the vocabulary and IDF statistics; \texttt{LogisticRegression.fit} learns classification coefficients.
+\item \texttt{transform}: apply an already learned representation to raw texts, yielding numerical vectors; it must not relearn the vocabulary or IDF from test texts.
+\item \texttt{predict}: use the trained classifier on transformed test reviews to produce class labels. In a Scikit-Learn \texttt{Pipeline}, calling \texttt{fit} performs the required intermediate fit/transform steps, and calling \texttt{predict} performs intermediate transforms before the final prediction.
+\end{itemize}
+
+\subq{(c) Why is fitting text features before the split information leakage?}
+If the vectorizer analyzes the full corpus, the vocabulary and document frequencies depend partly on documents designated as test data. Thus the model-development procedure has indirectly used test-distribution information, making the evaluation less independent. Leakage does not require access to the \emph{test labels}: even unlabeled test texts can affect selected terms and IDF values. The correct order is \textbf{split first, fit preprocessing on training only, transform test using the fitted transformer}. The same principle applies inside each cross-validation fold.
+
+\subq{(d) Why compare TF--IDF and CountVectorizer on identical splits?}
+Keeping the same training/test observations, labeling convention, classifier family, metrics, and evaluation protocol controls much of the variation unrelated to feature representation. A difference in performance is then more attributable to TF--IDF versus raw counts, though hyperparameter tuning should also be comparable. Pairing on the same test cases permits paired uncertainty analysis (Exercise~\ref{sec:ex16}).
+
+\begin{answer}
+\textbf{Safe pipeline:} split $\to$ fit vectorizer and classifier on training data $\to$ transform and predict test data $\to$ evaluate. Keep the splits fixed when comparing count vectors with TF--IDF.
+\end{answer}

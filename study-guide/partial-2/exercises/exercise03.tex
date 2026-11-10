@@ -1,0 +1,22 @@
+\section{DBSCAN and noise observations}
+\label{sec:ex3}
+\textbf{Given:} Two dense, curved bands in two dimensions, some isolated points, and approximately comparable local densities within the bands.
+
+\subq{(a) Why might DBSCAN be preferable to $K$-means?}
+$K$-means assigns every point to a nearest centroid. Its Euclidean-distance, centroid-based partitions are Voronoi regions, so a curved band may be split unnaturally; distant outliers also receive cluster assignments. In contrast, DBSCAN groups points connected through sufficiently dense neighborhoods, which can follow curved or non-convex shapes. DBSCAN also explicitly detects sparse observations as noise, without requiring a predetermined $K$.
+
+\subq{(b) Define a core point and the roles of $\varepsilon$ and \texttt{min\_samples}}
+For a candidate point $x_i$, define its closed $\varepsilon$-neighborhood:
+\[
+N_{\varepsilon}(x_i)=\{x_j:\norm{x_j-x_i}_2\leq\varepsilon\}.
+\]
+A point is \emph{core} when $\abs{N_{\varepsilon}(x_i)}\geq m$, where $m=\texttt{min\_samples}$. \textbf{The point itself counts} as one of the $m$ neighbors, as specified in the question. Core points connected through chains of neighboring core points form the dense skeleton of a cluster. Non-core points sufficiently close to a core point may be \emph{border points}; points that cannot be reached from a core point are labeled \emph{noise}.
+
+\subq{(c) What happens if $\varepsilon$ becomes very large?}
+For fixed $m$, larger $\varepsilon$ means larger neighborhoods. More observations become core or border points; isolated points may cease to be noise; and formerly distinct dense regions may merge through density-connected paths. If $\varepsilon$ is sufficiently large compared with all pairwise distances and there are at least $m$ total observations, all points can be assigned to one cluster. Therefore a large $\varepsilon$ can destroy the desired two-band distinction.
+
+\subq{(d) Meaning of Scikit-Learn label $-1$}
+In \texttt{DBSCAN.labels\_}, $-1$ identifies an observation classified as noise under the selected metric, $\varepsilon$, and \texttt{min\_samples}. It is not a numbered cluster, nor does it prove the observation is objectively anomalous independent of these choices.
+\begin{answer}
+DBSCAN is useful for comparable-density, non-convex clusters and noise. It is sensitive to neighborhood scale and may struggle when clusters have strongly different densities.
+\end{answer}

@@ -1,0 +1,30 @@
+\section{Selecting the number of clusters with the elbow method}
+\label{sec:ex2}
+\textbf{Given:}
+\begin{center}\begin{tabular}{@{}rrrrrr@{}}\toprule $K$&1&2&3&4&5\\\midrule Inertia&900&440&210&185&170\\\bottomrule\end{tabular}\end{center}
+
+\subq{(a) Which $K$ does the elbow method suggest?}
+The elbow heuristic favors the point beyond which the decrease in inertia becomes much smaller. Calculate successive improvements:
+\[
+\begin{aligned}
+\Delta J_{1\to2}&=900-440=460,\\
+\Delta J_{2\to3}&=440-210=230,\\
+\Delta J_{3\to4}&=210-185=25,\\
+\Delta J_{4\to5}&=185-170=15.
+\end{aligned}
+\]
+After $K=3$, each extra cluster gives only modest improvement compared with previous increments. Hence $\boxed{K=3}$ is the natural elbow choice for these values. This is a qualitative heuristic, not a statistical proof or a uniquely defined optimization rule.
+
+\subq{(b) Why not always choose the smallest inertia?}
+Adding centroids cannot increase the \emph{globally minimized} $K$-means objective; with one centroid per data point, inertia can reach zero. Thus minimizing training inertia across all $K$ systematically favors unnecessarily large $K$. We care about a parsimonious and interpretable partition, not just low training distortion. In practical runs, different local optima can cause small numerical irregularities, so repeated initialization is useful.
+
+\subq{(c) Another evaluation and one limitation}
+The \emph{average silhouette coefficient} compares a point's mean within-cluster distance $a(i)$ with its mean distance $b(i)$ to the closest other cluster:
+\[
+s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}}\in[-1,1].
+\]
+Higher values often indicate greater geometric separation. \textbf{Limitation:} silhouette evaluates a distance geometry, not whether categories are scientifically meaningful; it can also disadvantage elongated, nested, or irregularly shaped clusters. For large datasets, pairwise distance computation may be expensive.
+
+\begin{answer}
+The elbow suggests $\boxed{K=3}$. Validate it using silhouette, partition stability, cluster sizes, and domain interpretation rather than inertia alone.
+\end{answer}

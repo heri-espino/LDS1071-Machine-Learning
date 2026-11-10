@@ -1,0 +1,44 @@
+\section{PCA and explained variance}
+\label{sec:ex8}
+\textbf{Given:} The centered-data covariance matrix has eigenvalues $\lambda_1=6$, $\lambda_2=2$, $\lambda_3=1$, $\lambda_4=1$, sorted from largest to smallest.
+
+\begin{concept}
+For a covariance matrix $\Sigma$, each principal direction $v_j$ satisfies $\Sigma v_j=\lambda_j v_j$. Its eigenvalue is the variance of data projected onto that unit-length direction. The total variance is $\operatorname{tr}(\Sigma)=\sum_j\lambda_j$.
+\end{concept}
+
+\subq{(a) Explain the variance percentage of each component}
+First calculate total variance:
+\[
+\lambda_{\rm total}=6+2+1+1=10.
+\]
+Then compute $100\lambda_j/10$:
+\begin{center}\begin{tabular}{@{}rrrrr@{}}\toprule Component&PC1&PC2&PC3&PC4\\\midrule Eigenvalue&6&2&1&1\\ Explained variance&$60\%$&$20\%$&$10\%$&$10\%$\\ Cumulative&$60\%$&$80\%$&$90\%$&$100\%$\\\bottomrule\end{tabular}\end{center}
+
+\subq{(b) Minimum number needed to retain at least $85\%$}
+Find the smallest $q$ such that $\sum_{j=1}^{q}\lambda_j/\sum_{j=1}^{4}\lambda_j\geq0.85$:
+\[
+q=2:\ \frac{6+2}{10}=0.80<0.85,
+\qquad q=3:\ \frac{6+2+1}{10}=0.90\geq0.85.
+\]
+Therefore $\boxed{q_{\min}=3}$. Two dimensions retain only $80\%$; three retain $90\%$.
+
+\subq{(c) Why are principal directions orthogonal? What does PC1 optimize?}
+A real covariance matrix is symmetric ($\Sigma^\top=\Sigma$) and positive semidefinite. The spectral theorem guarantees an orthonormal eigenbasis. To see why eigenvectors for \emph{distinct} eigenvalues are orthogonal, let $\Sigma v_i=\lambda_i v_i$ and $\Sigma v_j=\lambda_j v_j$; then
+\[
+\lambda_j v_i^\top v_j=v_i^\top\Sigma v_j
+=(\Sigma v_i)^\top v_j=\lambda_i v_i^\top v_j,
+\]
+so $(\lambda_i-\lambda_j)v_i^\top v_j=0$. If $\lambda_i\neq\lambda_j$, it follows that $v_i^\top v_j=0$. For repeated eigenvalues, such as $\lambda_3=\lambda_4=1$, choose an orthonormal basis within that eigenspace.
+
+PC1 maximizes the variance of the projected centered data among all unit-length directions:
+\[
+v_1\in\argmax_{\norm{v}_2=1}\Var(Xv)
+=\argmax_{\norm{v}_2=1}v^\top\Sigma v.
+\]
+The Rayleigh quotient achieves its maximum $\lambda_1=6$ at a leading eigenvector.
+
+\subq{(d) Why might excellent PCA reconstruction fail to help classification?}
+PCA is \emph{unsupervised}: it preserves directions with high overall variance, not necessarily those that separate labels. If discriminative information lies in a low-variance direction, dimensionality reduction can remove it while retaining most reconstruction variance. Classification quality must therefore be checked using a held-out or cross-validated supervised metric, with PCA fitted within training folds.
+\begin{answer}
+Explained fractions $=60\%,20\%,10\%,10\%$. Preserve at least $85\%$ with $\boxed{3}$ principal components.
+\end{answer}

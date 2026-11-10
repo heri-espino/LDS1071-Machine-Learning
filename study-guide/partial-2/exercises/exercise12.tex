@@ -1,0 +1,40 @@
+\section{Cosine similarity of document vectors}
+\label{sec:ex12}
+\textbf{Given:} $u=(2,0,1)$, $v=(1,0,2)$, and $w=(0,3,0)$.
+
+\subq{(a) Compute $\operatorname{sim}_{\cos}(u,v)$ and $\operatorname{sim}_{\cos}(u,w)$}
+Cosine similarity measures alignment between \emph{nonzero} vectors:
+\[
+\operatorname{sim}_{\cos}(x,y)=\frac{x^\top y}{\norm{x}_2\norm{y}_2}.
+\]
+\textbf{Step 1: Calculate vector lengths.}
+\[
+\norm{u}_2=\sqrt{2^2+0^2+1^2}=\sqrt{5},\quad
+\norm{v}_2=\sqrt{1^2+0^2+2^2}=\sqrt{5},\quad
+\norm{w}_2=\sqrt{0^2+3^2+0^2}=3.
+\]
+\textbf{Step 2: Calculate dot products.}
+\[
+u^\top v=2(1)+0(0)+1(2)=4,\qquad
+u^\top w=2(0)+0(3)+1(0)=0.
+\]
+\textbf{Step 3: Divide each dot product by the norms.}
+\[
+\boxed{\operatorname{sim}_{\cos}(u,v)=\frac{4}{\sqrt5\sqrt5}=\frac45=0.8},
+\qquad \boxed{\operatorname{sim}_{\cos}(u,w)=\frac{0}{3\sqrt5}=0}.
+\]
+
+\subq{(b) Which document is more similar to $u$?}
+$\boxed{v}$ is more similar to $u$ under cosine similarity because $0.8>0$. The two vectors emphasize the first and third terms, whereas $w$ has weight only on the second term, making $u$ and $w$ orthogonal.
+
+\subq{(c) What is the similarity between $u$ and $3u$?}
+Since $3u=(6,0,3)$, its norm is $\norm{3u}_2=3\norm{u}_2$, so
+\[
+\operatorname{sim}_{\cos}(u,3u)
+=\frac{u^\top(3u)}{\norm{u}_2\norm{3u}_2}
+=\frac{3\norm{u}_2^2}{3\norm{u}_2^2}=\boxed{1}.
+\]
+More generally, for $\alpha>0$, $\operatorname{sim}_{\cos}(u,\alpha u)=1$. Cosine similarity is invariant under \emph{positive} rescaling, which helps compare text vectors with different overall frequencies or document lengths. It is undefined for a zero vector; multiplying by a \emph{negative} scalar would reverse direction, not preserve similarity.
+\begin{answer}
+$\boxed{\operatorname{sim}_{\cos}(u,v)=0.8,\ \operatorname{sim}_{\cos}(u,w)=0,\ \operatorname{sim}_{\cos}(u,3u)=1}$.
+\end{answer}

@@ -1,0 +1,47 @@
+\section{Tokenization and Bag of Words}
+\label{sec:ex10}
+\textbf{Given documents (already normalized and tokenized):}
+\[
+\begin{aligned}
+d_1&:\ \texttt{modelo aprende modelo},\\
+d_2&:\ \texttt{datos aprende},\\
+d_3&:\ \texttt{modelo datos datos}.
+\end{aligned}
+\]
+Use the \emph{fixed ordered vocabulary} $V=[\texttt{modelo},\texttt{aprende},\texttt{datos}]$.
+
+\subq{(a) Construct the document--term frequency matrix}
+Count occurrences of each vocabulary term, in the stated order. For $d_1$, the counts are $2$, $1$, and $0$; for $d_2$, $0$, $1$, and $1$; for $d_3$, $1$, $0$, and $2$:
+\[
+X_{\rm count}=\begin{array}{c|ccc}
+&\text{modelo}&\text{aprende}&\text{datos}\\\hline
+ d_1&2&1&0\\
+ d_2&0&1&1\\
+ d_3&1&0&2
+\end{array}.
+\]
+Formally, $X_{ij}=\operatorname{count}(t_j,d_i)$ for the $j$th vocabulary word $t_j$.
+
+\subq{(b) Construct the binary presence/absence matrix}
+Replace each strictly positive count by $1$, leaving zeros unchanged:
+\[
+X_{\rm binary}=\begin{array}{c|ccc}
+&\text{modelo}&\text{aprende}&\text{datos}\\\hline
+ d_1&1&1&0\\
+ d_2&0&1&1\\
+ d_3&1&0&1
+\end{array}.
+\]
+This representation distinguishes whether a term appears, but ignores whether it occurs once or many times.
+
+\subq{(c) Two limitations of Bag of Words}
+\begin{enumerate}
+\item \textbf{No word order or syntax.} Sentences with identical word counts can have different meaning (e.g., \emph{dog bites man} versus \emph{man bites dog}) yet identical Bag-of-Words vectors.
+\item \textbf{Sparse, vocabulary-dependent features.} Synonyms, morphology, rare terms, and out-of-vocabulary words are not automatically given similar meanings. Large vocabularies produce sparse and sometimes brittle vectors.
+\end{enumerate}
+
+\subq{(d) Example of how tokenization changes the vocabulary}
+Consider the illustrative raw string \texttt{modelo-aprende}. A tokenizer that splits punctuation may produce two tokens $[\texttt{modelo},\texttt{aprende}]$, yielding counts $(1,1)$ in that vocabulary. A tokenizer that retains hyphenated forms may produce one token $[\texttt{modelo-aprende}]$, yielding $(1)$ in a \emph{different} vocabulary. Thus tokenization changes both the feature columns and the numeric representation. This is a separate example; the three given documents are already tokenized, so their stipulated vocabulary must not be changed for parts (a)--(b).
+\begin{answer}
+Count rows: $\boxed{(2,1,0),\ (0,1,1),\ (1,0,2)}$. Binary rows: $\boxed{(1,1,0),\ (0,1,1),\ (1,0,1)}$.
+\end{answer}

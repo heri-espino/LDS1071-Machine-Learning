@@ -1,0 +1,55 @@
+\section{Agglomerative clustering: single and complete linkage}
+\label{sec:ex5}
+\textbf{Given:} $A=0$, $B=3$, $C=7$, $D=13$ on the real line.
+
+\subq{(a) Construct the Euclidean distance matrix}
+In one dimension, $d(P,Q)=\abs{P-Q}$. For example, $d(B,D)=\abs{3-13}=10$ and $d(C,D)=\abs{7-13}=6$. Compute every pair and use symmetry:
+\[
+D=\begin{array}{c|rrrr}
+& A & B & C & D\\\hline
+A&0&3&7&13\\
+B&3&0&4&10\\
+C&7&4&0&6\\
+D&13&10&6&0
+\end{array}.
+\]
+
+\subq{(b) Perform the three single-linkage merges}
+Single linkage defines intercluster distance by the \emph{nearest cross-cluster pair}:
+\[
+d_{\mathrm{single}}(U,V)=\min_{u\in U,\,v\in V} d(u,v).
+\]
+\begin{enumerate}[label=\textbf{Step \arabic*.}]
+\item The smallest initial distance is $d(A,B)=3$. Merge $A$ and $B$ to form $\{A,B\}$ at height $3$.
+\item Recompute the distances from the new cluster:
+\[
+\begin{aligned}
+d(\{A,B\},C)&=\min\{7,4\}=4,\\
+d(C,D)&=6,\\
+d(\{A,B\},D)&=\min\{13,10\}=10.
+\end{aligned}
+\]
+The minimum is $4$, so merge $\{A,B\}$ with $C$.
+\item The final distance is $d(\{A,B,C\},D)=\min\{13,10,6\}=6$. Merge with $D$ at height $6$.
+\end{enumerate}
+\begin{center}\begin{tabular}{@{}cll@{}}\toprule Merge&Clusters joined&Height\\\midrule 1&$A$ and $B$&3\\2&$\{A,B\}$ and $C$&4\\3&$\{A,B,C\}$ and $D$&6\\\bottomrule\end{tabular}\end{center}
+
+\subq{(c) Perform the three complete-linkage merges}
+Complete linkage uses the \emph{farthest cross-cluster pair}:
+\[
+d_{\mathrm{complete}}(U,V)=\max_{u\in U,\,v\in V} d(u,v).
+\]
+\begin{enumerate}[label=\textbf{Step \arabic*.}]
+\item Merge $A$ and $B$ at the initial minimum distance $3$.
+\item Recalculate $d(\{A,B\},C)=\max\{7,4\}=7$, $d(\{A,B\},D)=\max\{13,10\}=13$, while $d(C,D)=6$. The smallest is now $6$, so merge $C$ and $D$.
+\item The two clusters $\{A,B\}$ and $\{C,D\}$ have distance $\max\{7,13,4,10\}=13$. Merge at height $13$.
+\end{enumerate}
+\begin{center}\begin{tabular}{@{}cll@{}}\toprule Merge&Clusters joined&Height\\\midrule 1&$A$ and $B$&3\\2&$C$ and $D$&6\\3&$\{A,B\}$ and $\{C,D\}$&13\\\bottomrule\end{tabular}\end{center}
+The source specifies alphabetical tie-breaking. No equal minimum distances arise during these particular merges, so the tie rule is not needed.
+
+\subq{(d) Compare the results and explain each distance}
+\textbf{Single linkage} can join clusters through a short chain of close observations (the \emph{chaining effect}); its final height is $6$. \textbf{Complete linkage} requires controlling the largest separation between members, often favoring tighter groups; its final height is $13$. Different linkage functions encode different notions of what makes two clusters close.
+\begin{answer}
+\textbf{Single:} $AB$ at $3$; $(AB)C$ at $4$; $(ABC)D$ at $6$.\\
+\textbf{Complete:} $AB$ at $3$; $CD$ at $6$; $(AB)(CD)$ at $13$.
+\end{answer}

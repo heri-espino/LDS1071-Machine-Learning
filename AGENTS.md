@@ -16,3 +16,8 @@
 ## Known caveats
 - Lecture 14 currently has no PDF in `course-material/lectures/`; do not fabricate one.
 - The PDF uploaded as class 22 has an internal slide title that says session 21.
+
+## Study guide maintenance
+- For `study-guide/partial-2/`, keep one numbered exercise per `exercises/exerciseNN.tex`, include them in `main.tex`, and maintain `appendix_formulas.tex`.
+- Preserve the source guide's numerical givens and formulas (especially its unsmoothed base-10 TF--IDF convention). Document explicitly where illustrative methods extend the supplied problems.
+- Recompile LaTeX and run `python study-guide/partial-2/verify_numbers.py` after changes. Generated PDFs are excluded from Git; publish via the build workflow artifact instead.

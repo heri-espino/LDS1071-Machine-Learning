@@ -1,0 +1,48 @@
+\section{Reading and drawing a dendrogram}
+\label{sec:ex6}
+\textbf{Given merges:} $A$ with $B$ at height $1$; $D$ with $E$ at $2$; $\{A,B\}$ with $C$ at $4$; and $\{A,B,C\}$ with $\{D,E\}$ at $9$.
+
+\subq{(a) Draw a dendrogram with the specified heights}
+The vertical coordinate records the linkage height at which two clusters join. The branches below reproduce the exact merge sequence:
+\begin{center}
+\begin{tikzpicture}[x=1.5cm,y=.53cm,line width=.8pt]
+  \draw[gray!25] (-.25,0) grid[xstep=1,ystep=1] (4.25,9);
+  \foreach \y in {0,1,2,3,4,5,6,7,8,9} {\node[left,scale=.83] at (-.3,\y) {\y};}
+  \node[rotate=90,anchor=south] at (-1.15,4.5) {Merge height};
+  % A,B joined at 1; their representative is at x=.5.
+  \draw (0,0)--(0,1)--(1,1)--(1,0);
+  \draw (.5,1)--(.5,4);
+  % {A,B} joined with C at 4; new representative at x=1.25.
+  \draw (2,0)--(2,4)--(.5,4);
+  \draw (1.25,4)--(1.25,9);
+  % D,E joined at 2; their representative is x=3.5.
+  \draw (3,0)--(3,2)--(4,2)--(4,0);
+  \draw (3.5,2)--(3.5,9);
+  % Final join at 9.
+  \draw (1.25,9)--(3.5,9);
+  \draw[navy,dashed,line width=1pt] (-.15,3)--(4.15,3);
+  \draw[forest,dashed,line width=1pt] (-.15,6)--(4.15,6);
+  \foreach \x/\n in {0/A,1/B,2/C,3/D,4/E}{\node[below,font=\bfseries] at (\x,-.15) {\n};}
+  \node[navy,right,fill=white,inner sep=1pt,scale=.83] at (4.2,3) {cut at 3};
+  \node[forest,right,fill=white,inner sep=1pt,scale=.83] at (4.2,6) {cut at 6};
+\end{tikzpicture}
+\end{center}
+The horizontal positions are schematic; the \emph{heights} and membership relations are the meaningful quantities.
+
+\subq{(b) Cut at height $h=3$}
+Merges at heights $1$ and $2$ have already happened. The merge at height $4$ has not. Therefore the three clusters are
+\[
+\boxed{\{A,B\},\quad \{C\},\quad \{D,E\}}\quad (3\text{ clusters}).
+\]
+
+\subq{(c) Cut at height $h=6$}
+The height-$4$ merge has also happened, but the height-$9$ merge has not. The clusters are
+\[
+\boxed{\{A,B,C\},\quad \{D,E\}}\quad (2\text{ clusters}).
+\]
+
+\subq{(d) What do merge heights tell us?}
+A merge height is the computed \emph{linkage distance} between the two clusters at the moment they join, under the chosen distance metric and linkage method. Large vertical gaps can indicate a comparatively pronounced separation (for this example, $9-4=5$ before the final join). Heights are not probabilities and need not represent a particular member-to-member distance unless the linkage definition makes them so.
+\begin{answer}
+At height $3$: three clusters $AB$, $C$, $DE$. At height $6$: two clusters $ABC$, $DE$.
+\end{answer}

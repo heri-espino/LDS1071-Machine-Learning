@@ -1,0 +1,23 @@
+\section{When to reduce dimensionality}
+\label{sec:ex9}
+\textbf{Given scenarios:} (i) strongly correlated tabular variables; (ii) millions of rows that do not fit in memory simultaneously; (iii) observations near a curved low-dimensional surface.
+
+\subq{(a) Recommend PCA, Incremental PCA, or nonlinear manifold learning}
+\begin{enumerate}[label=\textbf{Scenario \roman*.}]
+\item \textbf{Correlated tabular features: standard PCA.} Related variables may contribute redundant directions. After appropriate centering and, when scales are not comparable, standardization, PCA rotates to uncorrelated components and may permit compression while retaining high total variance. Caveat: uncorrelated does not imply statistically independent, and standardizing changes which covariance structure is analyzed.
+\item \textbf{Data too large for memory: Incremental PCA.} Process successive mini-batches rather than loading the entire matrix simultaneously. Incremental PCA approximates leading linear principal directions while reducing peak memory usage. It still needs sufficient memory for each batch and the components; its result may differ from batch PCA. \emph{If} the number of features is also huge, sparse approaches or randomized methods may be better.
+\item \textbf{Curved low-dimensional surface: nonlinear manifold learning.} A single flat linear subspace may not capture a curved structure; Isomap, locally linear embedding, or UMAP (depending on objectives) are candidates. These methods have choices concerning neighbors, topology, metric preservation, computational burden, and out-of-sample transformation; they need validation for the downstream task.
+\end{enumerate}
+
+\subq{(b) One advantage and one risk before clustering}
+\textbf{Advantage:} discarding redundant or noisy features can make neighborhoods more informative, decrease computation, and enable visualization. \textbf{Risk:} the transformation may remove a low-variance direction that separates the actual clusters, or distort original interpoint distances. The responsible check is to compare clustering stability and relevant metrics before/after reduction, fitting the transformation on the appropriate training data when an evaluation split is used.
+
+\subq{(c) Why can high dimension hamper distance-based methods?}
+In a space with many uninformative coordinates, their accumulated variation can dominate Euclidean distance:
+\[
+\norm{x_i-x_j}_2^2=\sum_{r=1}^{p}(x_{ir}-x_{jr})^2.
+\]
+As $p$ grows, pairwise distances may become less discriminative in some common data-generating regimes (\emph{distance concentration}), and local neighborhoods require many more samples for comparable coverage (a form of the \emph{curse of dimensionality}). The effect depends on the data distribution, scaling, intrinsic dimension, and chosen metric; it is not a universal theorem that all high-dimensional distances become useless.
+\begin{answer}
+(i) PCA; (ii) Incremental PCA; (iii) nonlinear manifold learning. Always check whether the reduced geometry preserves the structure relevant to your task.
+\end{answer}

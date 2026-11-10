@@ -1,0 +1,50 @@
+\section{Confusion matrix and classification metrics}
+\label{sec:ex15}
+\textbf{Given:} $120$ messages; ``urgent'' is the \textbf{positive} class. The matrix in the guide has predicted classes in rows and true classes in columns:
+\begin{center}\begin{tabular}{@{}lrr@{}}\toprule
+&Actual urgent&Actual not urgent\\\midrule
+Predicted urgent&30&10\\
+Predicted not urgent&15&65\\\bottomrule
+\end{tabular}\end{center}
+
+\subq{(a) Identify TP, FP, FN, TN}
+\begin{itemize}
+\item \textbf{TP $=30$}: predicted urgent, truly urgent.
+\item \textbf{FP $=10$}: predicted urgent, truly not urgent (false alarm).
+\item \textbf{FN $=15$}: predicted not urgent, truly urgent (missed urgency).
+\item \textbf{TN $=65$}: predicted not urgent, truly not urgent.
+\end{itemize}
+Check: $30+10+15+65=120$.
+
+\subq{(b) Calculate accuracy, precision, recall, and $F_1$}
+\textbf{Accuracy}, the fraction of all correct predictions:
+\[
+\operatorname{Accuracy}=\frac{TP+TN}{TP+FP+FN+TN}
+=\frac{30+65}{120}=\frac{95}{120}=\boxed{0.79167\ (79.17\%)}.
+\]
+\textbf{Precision}, the fraction of predicted-urgent messages truly urgent:
+\[
+P=\frac{TP}{TP+FP}=\frac{30}{30+10}=\boxed{0.75\ (75\%)}.
+\]
+\textbf{Recall}, the fraction of all actual urgent messages detected:
+\[
+R=\frac{TP}{TP+FN}=\frac{30}{30+15}
+=\boxed{\frac{2}{3}\approx0.66667\ (66.67\%)}.
+\]
+\textbf{$F_1$}, the harmonic mean of precision and recall:
+\begin{align*}
+F_1&=\frac{2PR}{P+R}
+=\frac{2TP}{2TP+FP+FN}\\
+&=\frac{2(30)}{2(30)+10+15}
+=\frac{60}{85}=\boxed{\frac{12}{17}\approx0.70588\ (70.59\%)}.
+\end{align*}
+\begin{center}\begin{tabular}{@{}lr@{}}\toprule Metric&Value\\\midrule Accuracy&$0.79167$\\ Precision&$0.75000$\\ Recall&$0.66667$\\ $F_1$&$0.70588$\\\bottomrule\end{tabular}\end{center}
+
+\subq{(c) Which metric is most important if urgent messages must not be missed?}
+Prioritize \textbf{recall for the urgent class}, because its denominator $TP+FN$ covers \emph{all truly urgent messages}, and increasing recall corresponds to reducing the rate of missed urgent messages. Here $15$ of $45$ urgent messages are missed. A lower decision threshold may improve recall, usually at the cost of additional false positives; the exact trade-off should be selected using the application-specific costs of missed and false alarms. Explicitly inspect \emph{false-negative rate} $FN/(TP+FN)=15/45=1/3$.
+
+\subq{(d) Why may accuracy mislead with very imbalanced classes?}
+If urgent messages are rare, a classifier that predicts ``not urgent'' for every message can achieve a high overall accuracy while having urgent-class recall $0$. For example, when only $1\%$ of messages are urgent, always predicting ``not urgent'' yields $99\%$ accuracy but misses \emph{all} urgent messages. Report class-specific precision/recall, an appropriate $F_\beta$, and the confusion matrix in addition to accuracy.
+\begin{answer}
+$\boxed{TP=30,\ FP=10,\ FN=15,\ TN=65}$; accuracy $79.17\%$, precision $75\%$, recall $66.67\%$, $F_1$ $70.59\%$. With costly missed urgent messages, prioritize urgent-class recall.
+\end{answer}

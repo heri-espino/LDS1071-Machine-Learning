@@ -1,0 +1,100 @@
+% Compile from this directory: latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{lmodern}
+\usepackage[a4paper,margin=2.1cm]{geometry}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,array,tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage[most]{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage{listings}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{siunitx}
+\sisetup{detect-all}
+
+\definecolor{navy}{HTML}{17365D}
+\definecolor{pale}{HTML}{EFF4FA}
+\definecolor{forest}{HTML}{246448}
+\definecolor{mint}{HTML}{EDF7F1}
+\definecolor{amber}{HTML}{80510E}
+\definecolor{cream}{HTML}{FFF8E9}
+\hypersetup{colorlinks=true,linkcolor=navy,urlcolor=navy,pdftitle={LDS1071 - Fully Solved Midterm II Study Guide},pdfauthor={Study material}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlength{\headheight}{14pt}
+\setlist[enumerate]{leftmargin=2.0em,itemsep=3pt,topsep=3pt}
+\setlist[itemize]{leftmargin=1.6em,itemsep=2pt,topsep=3pt}
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{LDS1071 --- Midterm II}
+\rhead{Worked study guide}
+\cfoot{\thepage\ / \pageref{LastPage}}
+
+\newtcolorbox{answer}{breakable,colback=mint,colframe=forest,boxrule=.65pt,arc=1.2mm,left=2mm,right=2mm,top=1mm,bottom=1mm}
+\newtcolorbox{important}{breakable,colback=cream,colframe=amber,boxrule=.6pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,title=Important distinction,fonttitle=\bfseries}
+\newtcolorbox{concept}{breakable,colback=pale,colframe=navy,boxrule=.6pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,title=Underlying idea,fonttitle=\bfseries}
+\newcommand{\subq}[1]{\subsection*{#1}}
+\newcommand{\E}{\mathbb E}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\Cov}{\operatorname{Cov}}
+\newcommand{\R}{\mathbb R}
+\newcommand{\given}{\,\middle|\,}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\abs}[1]{\left\lvert#1\right\rvert}
+\newcommand{\argmin}{\operatorname*{arg\,min}}
+\newcommand{\argmax}{\operatorname*{arg\,max}}
+\newcommand{\dd}{\mathrm d}
+\lstset{language=Python,basicstyle=\ttfamily\footnotesize,backgroundcolor=\color{black!3},frame=single,rulecolor=\color{black!15},keywordstyle=\color{navy}\bfseries,commentstyle=\color{forest},showstringspaces=false,columns=fullflexible,breaklines=true,keepspaces=true}
+
+\title{\textbf{Midterm II --- Fully Solved Study Guide}\\[2mm]\large Machine Learning (LDS1071)}
+\author{Step-by-step calculations, explanations, and formula reference}
+\date{}
+
+\begin{document}
+\maketitle
+\begin{concept}
+\textbf{Source and scope.} This document follows the 16 exercises and all their subquestions in the supplied five-page \emph{Gu\'ia de Estudio --- Examen parcial II} for LDS1071. Numerical givens are preserved. Answers are presented in English for studying, while original Spanish document tokens (e.g., \texttt{modelo}, \texttt{red}) are retained. The source guide describes these as \emph{practice} questions, not an exhaustive examination syllabus.
+\end{concept}
+\tableofcontents
+\clearpage
+
+\section*{Notation and essential vocabulary}
+\addcontentsline{toc}{section}{Notation and essential vocabulary}
+Let $n$ denote the number of observations, $p$ the number of features, and $K$ the number of clusters. The dataset is $X=\{x_i\}_{i=1}^{n}$, with $x_i\in\R^p$; $c(i)$ denotes the cluster assigned to observation $i$; and $\mu_k$ denotes centroid $k$. We write $\norm{v}_2$ for Euclidean norm, $\norm{v}_2^2$ for its square, $\lambda_j$ for an eigenvalue, and $\hat y_i$ for a predicted label.
+
+\textbf{Glossary.} A \emph{centroid} is a cluster's arithmetic mean; \emph{inertia} is within-cluster sum of squared distances; \emph{linkage} specifies distance between clusters; a \emph{manifold} is a locally low-dimensional surface that may curve inside a higher-dimensional space; a \emph{mixture responsibility} is a component's conditional probability for an observation; \emph{data leakage} is information from validation or test data improperly used during model fitting; a \emph{paired resample} preserves alignment of outcomes and both models' predictions for each observation.
+
+\begin{important}
+\textbf{How to study.} For each exercise, reproduce the calculation without looking at the answer, then explain \emph{why} its formula is appropriate. The complete formula reference appears in Appendix~\ref{sec:formulas}.
+\end{important}
+\clearpage
+
+% One exercise per included source file; numbering follows the supplied guide.
+\input{exercises/exercise01}
+\input{exercises/exercise02}
+\input{exercises/exercise03}
+\input{exercises/exercise04}
+\input{exercises/exercise05}
+\input{exercises/exercise06}
+\input{exercises/exercise07}
+\input{exercises/exercise08}
+\input{exercises/exercise09}
+\input{exercises/exercise10}
+\input{exercises/exercise11}
+\input{exercises/exercise12}
+\input{exercises/exercise13}
+\input{exercises/exercise14}
+\input{exercises/exercise15}
+\input{exercises/exercise16}
+\clearpage
+\appendix
+\input{appendix_formulas}
+\end{document}

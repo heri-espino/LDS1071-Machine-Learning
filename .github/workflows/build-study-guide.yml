@@ -2,6 +2,15 @@ name: Build study guide PDF
 
 on:
   workflow_dispatch:
+    inputs:
+      guide:
+        description: 'Choose the study guide'
+        required: true
+        default: partial-2
+        type: choice
+        options:
+          - partial-1
+          - partial-2
 
 permissions:
   contents: read
@@ -16,7 +25,8 @@ jobs:
       - name: Compile LaTeX
         uses: xu-cheng/latex-action@v3
         with:
-          root_file: study-guide/partial-1/main.tex
+          root_file: main.tex
+          working_directory: study-guide/${{ inputs.guide }}
           latexmk_use_xelatex: false
           args: -pdf -interaction=nonstopmode -halt-on-error
 
@@ -28,7 +38,7 @@ jobs:
       - name: Upload PDF
         uses: actions/upload-artifact@v4
         with:
-          name: LDS1071-parcial-I-${{ steps.vars.outputs.short_sha }}
-          path: study-guide/partial-1/main.pdf
+          name: LDS1071-${{ inputs.guide }}-${{ steps.vars.outputs.short_sha }}
+          path: study-guide/${{ inputs.guide }}/main.pdf
           retention-days: 30
           if-no-files-found: error

@@ -11,3 +11,13 @@
 
 ## Next steps
 - If additional lectures are uploaded, inspect opening agenda/navigation, rename consistently, and extend `docs/course-map.md`.
+
+## Solved Midterm II guide
+
+- Source: user-provided five-page `Guía Parcial II.pdf` (practice exercise sheet; not an exhaustive exam outline).
+- Location: `study-guide/partial-2/main.tex`, with one `exercises/exerciseNN.tex` per exercise (16 total), `appendix_formulas.tex`, `README.md`, and `verify_numbers.py`.
+- The solutions, in English, preserve the original Spanish vocabulary tokens and course-specific numerical conventions; notably, Exercise 11 requires \(\log_{10}(N/df)\), without Scikit-Learn smoothing.
+- Exercise 14 has no raw review dataset; the displayed classification pipeline is illustrative and does not claim measured performance. Exercise 16 supplies only two F1 summaries; no bootstrap confidence interval can be computed without case-level predictions.
+- Locally validated with `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build main.tex` (25 pages, no overfull boxes) and `python verify_numbers.py` (all arithmetic checks pass).
+- `.gitignore` excludes generated PDFs; `.github/workflows/build-study-guide.yml` supports selecting partial-1 or partial-2 for downloadable GitHub Actions artifacts.
+- Next: if the source exercise sheet is revised, update individual exercises and numerical checks; rebuild before committing. Do not invent answers to data-dependent questions without data.

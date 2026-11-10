@@ -1,0 +1,52 @@
+\section{Fair model comparison and paired bootstrap}
+\label{sec:ex16}
+\textbf{Given:} Models $A$ and $B$ are evaluated on the \emph{same news documents}; $F_1(A)=0.81$, $F_1(B)=0.83$.
+
+\subq{(a) State at least two requirements for a fair comparison}
+\begin{enumerate}
+\item \textbf{Identical evaluation cases and labels:} both models should be assessed on the same held-out documents, with the same definition of positive class (or the same multiclass averaging rule) and the same $F_1$ calculation.
+\item \textbf{No asymmetric leakage or tuning on test:} each pipeline's preprocessing, feature selection, and hyperparameter search should be fitted/tuned only with training/validation data, using a comparable experimental budget. The test set should not guide either design.
+\end{enumerate}
+Other useful controls include fixed split/seed, comparable preprocessing goals, confidence intervals, and respecting duplicate documents, temporal dependence, and groups when present.
+
+\subq{(b) Does $0.83-0.81=0.02$ prove that $B$ generalizes better?}
+No. The observed difference is
+\[
+\hat\Delta=F_1(B)-F_1(A)=0.83-0.81=\boxed{0.02}
+\]
+(two percentage points on the $F_1$ scale). Its uncertainty depends on the test size, class balance, model errors, and especially how often the two models disagree on individual documents. An isolated pair of $F_1$ scores supplies no sampling uncertainty, and even a statistically distinguishable difference need not be practically important.
+
+\subq{(c) Design a paired bootstrap test of the difference}
+Let $n$ be the number of test documents, and store aligned triples:
+\[
+T_i=(y_i,\hat y_i^{(A)},\hat y_i^{(B)}),\qquad i=1,\dots,n.
+\]
+The \emph{pairing} is at the document level: the true label and both models' predictions for the same document must always be resampled together.
+
+\begin{enumerate}[label=\textbf{Step \arabic*.}]
+\item For bootstrap replicate $b=1,\dots,B$ (say, $B=5{,}000$ for illustration), draw indices $I_1^{(b)},\dots,I_n^{(b)}$ independently with replacement from $\{1,\dots,n\}$.
+\item Build the bootstrap sample of \emph{triples} $\big\{T_{I_1^{(b)}},\dots,T_{I_n^{(b)}}\big\}$. If a document is drawn twice, both of its predictions and its truth appear twice.
+\item Recompute \emph{both} $F_1$ scores on the same resampled indices, then record $\Delta_b^*=F_{1,b}^*(B)-F_{1,b}^*(A)$.
+\item Examine the empirical distribution $\{\Delta_b^*\}$, and construct (for example) a percentile $95\%$ interval using its $2.5$th and $97.5$th percentiles. If the interval excludes $0$ in favor of positive values, this is evidence that $B$ has the higher expected $F_1$ under the chosen resampling assumptions. If it includes $0$, the data do not resolve the sign at that nominal confidence level.
+\end{enumerate}
+
+\textbf{Minimal pseudocode:}
+\begin{lstlisting}
+# y, pred_A, pred_B: arrays of equal length, in SAME document order.
+# F1 computes F1 with the SAME positive-class convention for A and B.
+deltas = []
+for _ in range(5000):
+    idx = rng.integers(0, len(y), size=len(y))  # with replacement
+    score_A = F1(y[idx], pred_A[idx])
+    score_B = F1(y[idx], pred_B[idx])
+    deltas.append(score_B - score_A)
+interval = np.quantile(deltas, [0.025, 0.975])
+\end{lstlisting}
+This pseudocode assumes that \texttt{rng}, \texttt{np}, and \texttt{F1} are defined and that the arrays are aligned; it explains the algorithm rather than claiming a numerical interval from the two reported summary scores.
+
+\begin{important}
+\textbf{Uncertainty limits.} Bootstrap resampling of fixed held-out predictions quantifies variation due to test-case sampling, conditional on the trained models. It does \emph{not} automatically include variability from retraining, choosing hyperparameters, or repeated experimentation on the same test set. Documents that are dependent (e.g., repeated articles from the same source) may require grouped or block resampling. An interval containing $0$ does not demonstrate exact equality.
+\end{important}
+\begin{answer}
+The observed advantage of $B$ is $\boxed{0.02}$, but no inference is possible from the two scores alone. Paired resampling must preserve $(y_i,\hat y_i^{(A)},\hat y_i^{(B)})$ for each selected document.
+\end{answer}

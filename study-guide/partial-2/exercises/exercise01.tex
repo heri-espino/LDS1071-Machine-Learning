@@ -1,0 +1,46 @@
+\section{One iteration of $K$-means}
+\label{sec:ex1}
+\textbf{Given:} One-dimensional observations $X=\{1,3,9,12\}$, $K=2$, and initial centroids $\mu_1^{(0)}=1$, $\mu_2^{(0)}=12$.
+
+\begin{concept}
+$K$-means alternates two operations: (i) assign each point to its nearest centroid; (ii) replace each centroid with its assigned points' arithmetic mean. Its objective is the \emph{within-cluster sum of squares} $J=\sum_i\norm{x_i-\mu_{c(i)}}_2^2$.
+\end{concept}
+
+\subq{(a) Assign each point to its closest initial centroid}
+In one dimension, Euclidean distance is absolute difference: $d(x,\mu)=\abs{x-\mu}$. Compute both distances before choosing the smaller value:
+\begin{center}
+\begin{tabular}{@{}rrrrl@{}}\toprule
+$x_i$ & $\abs{x_i-1}$ & $\abs{x_i-12}$ & Nearest & Assignment\\\midrule
+1&0&11&1&$C_1$\\
+3&2&9&1&$C_1$\\
+9&8&3&2&$C_2$\\
+12&11&0&2&$C_2$\\\bottomrule
+\end{tabular}
+\end{center}
+Thus $C_1=\{1,3\}$ and $C_2=\{9,12\}$.
+
+\subq{(b) Update the centroids}
+Take the mean of each assigned cluster:
+\[
+\mu_1^{(1)}=\frac{1+3}{2}=\boxed{2},\qquad
+\mu_2^{(1)}=\frac{9+12}{2}=\boxed{10.5}.
+\]
+The updated centroids minimize the within-cluster squared-error objective \emph{for the current assignments}.
+
+\subq{(c) Calculate the inertia using the \emph{updated} centroids}
+Substitute each point's assigned, updated centroid into the specified objective:
+\begin{align*}
+J^{(1)}&=(1-2)^2+(3-2)^2+(9-10.5)^2+(12-10.5)^2\\
+&=1+1+2.25+2.25=\boxed{6.5}.
+\end{align*}
+Note that this is a \emph{sum}, not a mean; do not divide by four.
+
+\subq{(d) Reassign using the updated centroids}
+The nearest-centroid decision boundary in one dimension is their midpoint:
+\[
+b=\frac{2+10.5}{2}=6.25.
+\]
+Values $1$ and $3$ are less than $6.25$; $9$ and $12$ exceed it. Consequently the assignments remain $\{1,3\}$ and $\{9,12\}$. A subsequent centroid update also gives $2$ and $10.5$: this solution has reached a fixed point of the alternating algorithm.
+\begin{answer}
+\textbf{Result:} $C_1=\{1,3\}$, $C_2=\{9,12\}$; centroids $(2,10.5)$; inertia $6.5$; no further assignment changes.
+\end{answer}

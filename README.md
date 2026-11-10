@@ -68,6 +68,31 @@ latexmk -pdf -interaction=nonstopmode -halt-on-error study-guide/partial-1/main.
 
 El workflow **Build study guide PDF** también permite compilarla manualmente desde GitHub Actions.
 
+## Guía resuelta del Parcial II
+
+La guía modular contiene **16 ejercicios resueltos paso a paso** y un apéndice con las fórmulas utilizadas. Cada ejercicio ocupa un archivo `.tex` independiente; `main.tex` controla el orden y la compilación.
+
+```text
+study-guide/partial-2/main.tex
+study-guide/partial-2/exercises/exercise01.tex  # ... exercise16.tex
+study-guide/partial-2/appendix_formulas.tex
+```
+
+Compilar desde la raíz del repositorio:
+
+```bash
+cd study-guide/partial-2
+latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build main.tex
+```
+
+Verificar los cálculos numéricos:
+
+```bash
+python study-guide/partial-2/verify_numbers.py
+```
+
+El workflow **Build study guide PDF** permite seleccionar Parcial I o Parcial II y descargar el PDF generado como artefacto. Consulta `study-guide/partial-2/README.md` para alcance y notas metodológicas.
+
 ## Hands-On Machine Learning
 
 El repositorio de Aurélien Géron se mantiene como **git subtree** bajo `hands-mlp/`.

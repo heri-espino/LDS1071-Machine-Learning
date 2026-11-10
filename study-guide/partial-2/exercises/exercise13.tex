@@ -1,0 +1,27 @@
+\section{Discovering topics in 12,000 unlabeled abstracts}
+\label{sec:ex13}
+\textbf{Given:} A digital library contains $12{,}000$ article abstracts without topic labels and wants interpretable groups.
+
+\subq{(a) Design the preprocessing--vectorization--clustering--evaluation pipeline}
+\begin{enumerate}[label=\textbf{Step \arabic*.}]
+\item \textbf{Inspect and clean.} Detect exact duplicates, missing texts, language variation, boilerplate, and unusually short abstracts. Normalize consistently (e.g., Unicode, case, punctuation as appropriate); decide how to handle stop words and scientific phrases, without indiscriminately removing informative domain vocabulary.
+\item \textbf{Vectorize.} Fit a \texttt{TfidfVectorizer} on the available unlabeled training corpus, choosing word unigrams/bigrams and a minimum document frequency as justified by the data. Store the resulting sparse document--term matrix. $L_2$ normalization can make cosine-related similarity more meaningful.
+\item \textbf{Choose candidate clusterings.} Evaluate several $K$ values in $K$-means; set \texttt{random\_state}, use multiple initializations, and inspect cluster sizes. Compare against a suitable alternate method if irregular group shape is suspected. Large vocabularies may benefit from a carefully validated dimensionality-reduction stage.
+\item \textbf{Evaluate geometry and robustness.} Compute a silhouette score with a clearly specified distance metric, inspect inertia as a secondary statistic, check empty/tiny clusters, repeat across seeds or samples, and examine stability.
+\item \textbf{Evaluate interpretability.} For each cluster inspect top-weighted terms and representative abstracts, name topics manually, and solicit subject-matter review. If possible, test assignment of new abstracts to existing clusters.
+\end{enumerate}
+\begin{important}
+Do not use the original corpus's \emph{nonexistent} ground-truth labels to claim accuracy, precision, or recall. Cluster validity without labels is a separate problem from supervised classification.
+\end{important}
+
+\subq{(b) Compare TF--IDF with normalized Bag of Words}
+\textbf{Normalized counts} reflect relative within-document word frequency, tempering raw document-length differences; however, extremely common words can still dominate. \textbf{TF--IDF} additionally reduces the influence of terms appearing in many documents and can make topical vocabulary more salient. Both are sparse, vocabulary-based representations with limited semantic understanding. Their relative effectiveness depends on tokenization, domain, corpus size, and normalization; compare rather than assume TF--IDF always wins.
+
+\subq{(c) Silhouette $0.48$ at $K=4$ vs. $0.53$ at $K=7$: choose $7$ automatically?}
+No. A difference of $\boxed{0.53-0.48=0.05}$ suggests the seven-cluster partition scores better \emph{under that silhouette setup}, but it does not establish domain validity or a stable optimum. Check whether the metric, vector normalization, candidate range, and random initialization are comparable; inspect uncertainty across seeds, cluster-size imbalance, top terms, representative texts, and whether $K=7$ merely fragments coherent themes. Business or scientific requirements may also favor fewer, clearer categories.
+
+\subq{(d) Assign meaningful topic descriptions without labels}
+For cluster $k$, rank words by cluster-specific mean TF--IDF or excess frequency relative to the full corpus, inspect several abstracts nearest to the cluster center, and propose a short topic name. Review outliers and ambiguous examples to check whether the label reflects the majority. An external expert can assess face validity even though there are no known ``correct'' labels. A label is \emph{post hoc interpretation}, not an automatically verified class.
+\begin{answer}
+Use \textbf{cleaning $\to$ vectorization $\to$ multiple candidate clusterings $\to$ geometric/stability checks $\to$ manual topic interpretation}. The larger silhouette at $K=7$ is only one piece of evidence.
+\end{answer}
