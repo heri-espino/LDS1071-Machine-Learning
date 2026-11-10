@@ -36,6 +36,27 @@ assert max(abs(locations[x]-locations[y])
 assert isclose((9-3)/max(3, 9), 2/3)
 assert isclose((4-5)/max(5, 4), -1/5)
 
+# Exercise 7 extension: compute a(i) and b(i) from full distance sets.
+clusters = {1: [0, 2, 7], 2: [8, 9], 3: [15, 18]}
+def silhouette_parts(point, assigned):
+    own = clusters[assigned]
+    # Exclude only the observation itself (not all equal-valued observations).
+    own_idx = own.index(point)
+    a = sum(abs(point - x) for j, x in enumerate(own) if j != own_idx) / (len(own) - 1)
+    other_means = {k: sum(abs(point - x) for x in group) / len(group)
+                   for k, group in clusters.items() if k != assigned}
+    b = min(other_means.values())
+    return a, b, (b - a) / max(a, b), other_means
+
+pos_a, pos_b, pos_s, pos_alts = silhouette_parts(2, 1)
+neg_a, neg_b, neg_s, neg_alts = silhouette_parts(7, 1)
+assert pos_alts == {2: 6.5, 3: 14.5}
+assert neg_alts == {2: 1.5, 3: 9.5}
+assert (pos_a, pos_b) == (3.5, 6.5)
+assert isclose(pos_s, 6/13)
+assert (neg_a, neg_b) == (6, 1.5)
+assert isclose(neg_s, -0.75)
+
 # Exercise 8: PCA explained-variance sequence.
 eigs = [6, 2, 1, 1]
 assert [v/sum(eigs) for v in eigs] == [0.6, 0.2, 0.1, 0.1]

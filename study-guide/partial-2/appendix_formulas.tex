@@ -103,6 +103,12 @@ The per-point silhouette and sample mean are
 \boxed{s(i)=\frac{b(i)-a(i)}{\max\{a(i),b(i)\}}},\qquad
 \boxed{\bar s=\frac1n\sum_{i=1}^{n}s(i)}.
 \]
+\textbf{Procedure from data:} (1) Exclude $x_i$ from its own-cluster distances and divide by $|C_i|-1$; (2) for \emph{each} other cluster, average over \emph{all} of its members; (3) take the minimum of those averages; (4) substitute into $s(i)$. For instance, for $C_1=\{0,2,7\}$, $C_2=\{8,9\}$, $C_3=\{15,18\}$:
+\[
+a(2)=\frac{2+5}{2}=3.5,\quad b(2)=\min\left\{\frac{6+7}{2},\frac{13+16}{2}\right\}=6.5,\quad s(2)=\frac6{13}.
+\]
+The complete worked comparison for $x_i=2$ and $x_i=7$ is in Exercise~\ref{sec:ex7}.
+
 The formula assumes the denominator is nonzero. Typical implementations define the score of a singleton cluster to be $0$, and silhouette is not defined when there is only one cluster or every observation has its own cluster.
 
 \subsection{PCA, eigenvalues, reconstruction, and dimension choice}

@@ -39,3 +39,10 @@
 - The generated numerical inversion example uses A=(-1,0), B=(1,0), C=(0,1.9), with centroid merge heights 2 then 1.9. A second hypothetical example (n=100,K=3,p=2) illustrates AIC selecting full and BIC selecting tied, using explicit parameter counts. Neither example is misrepresented as an original source problem.
 - `verify_numbers.py` now checks inversion geometry, parameter counts and AIC/BIC arithmetic, optionally cross-checking with SciPy. `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build main.tex` succeeded, producing 53 pages with no overfull boxes; a selection of rendered pages was inspected.
 - The user can obtain the compiled PDF and complete source ZIP from the conversation attachments; the repository excludes compiled PDFs via `.gitignore`, but GitHub Actions can regenerate them reproducibly.
+
+## Exercise 7 silhouette distance example
+
+- Added a constructed three-cluster 1D silhouette example in `study-guide/partial-2/exercises/exercise07.tex`, immediately after the original guide exercise: `C1={0,2,7}`, `C2={8,9}`, `C3={15,18}`. All values are calculated from Euclidean distances, rather than assuming a(i), b(i) are given.
+- Checked values: for x=2 in C1, a=3.5, alternative averages 6.5 and 14.5, b=6.5, s=6/13; for x=7 in C1, a=6, alternative averages 1.5 and 9.5, b=1.5, s=-0.75.
+- Definition: exclude only the observation itself when calculating a(i); b(i) is the minimum of whole-cluster *mean* distances, not the nearest individual neighbor. The example is explicitly labeled supplementary and does not misstate the source guide.
+- Added the computation procedure to `appendix_formulas.tex`, standard-library assertions to `verify_numbers.py`, and a scope note to the local README. LaTeX compiled successfully to 55 pages with no overfull boxes; new example pages 19–20 were rendered and inspected; all numerical checks passed.

@@ -36,3 +36,90 @@ No. Silhouette quantifies within- versus between-cluster \emph{distance} relatio
 \begin{answer}
 $\boxed{s(x_1)\approx0.667}$ indicates good separation; $\boxed{s(x_2)=-0.2}$ suggests possible misassignment or overlap.
 \end{answer}
+
+
+\subsection*{Supplementary worked example: calculate $a(i)$ and $b(i)$ from raw observations}
+\begin{reviewproblem}
+Consider three \emph{given} clusters on the real number line, with ordinary Euclidean distance
+$d(x,y)=|x-y|$:
+\[
+C_1=\{0,2,7\},\qquad C_2=\{8,9\},\qquad C_3=\{15,18\}.
+\]
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Calculate the within-cluster mean distance $a(i)$ and the nearest other-cluster mean distance $b(i)$ for $x_i=2$.
+\item Repeat for $x_i=7$ and calculate the silhouette of each observation.
+\item Explain why $b(i)$ is \emph{not} simply the distance to the nearest observation in another cluster.
+\end{enumerate}
+These numbers are a constructed practice example; they are \emph{not} additional observations supplied by the original study guide.
+\end{reviewproblem}
+
+\begin{center}
+\begin{tikzpicture}[x=0.44cm,y=1cm]
+  \draw[-{Latex[length=2mm]},gray!75,thick] (-0.7,0)--(19.7,0) node[right] {$x$};
+  \foreach \x in {0,2,7,8,9,15,18}{\draw[gray] (\x,.09)--(\x,-.09);}
+  \foreach \x in {0,2,7}{\fill[navy] (\x,0) circle (2.5pt);}
+  \foreach \x in {8,9}{\fill[forest] (\x,0) circle (2.5pt);}
+  \foreach \x in {15,18}{\fill[amber] (\x,0) circle (2.5pt);}
+  \foreach \x in {0,2,7,8,9,15,18}{\node[below=3pt,font=\scriptsize] at (\x,0) {$\x$};}
+  \node[above=8pt,text=navy,font=\small] at (2,0) {$C_1$};
+  \node[above=8pt,text=forest,font=\small] at (8.5,0) {$C_2$};
+  \node[above=8pt,text=amber,font=\small] at (16.5,0) {$C_3$};
+\end{tikzpicture}
+\end{center}
+
+\textbf{Definitions.} If $C(i)$ is the assigned cluster containing $x_i$, then
+\[
+\begin{aligned}
+a(i)&=\frac{\sum_{x_j\in C(i),\,j\neq i}d(x_i,x_j)}{|C(i)|-1},\\
+b(i)&=\min_{C\neq C(i)}\underbrace{\left[\frac{1}{|C|}\sum_{x_j\in C}d(x_i,x_j)\right]}_{\text{mean distance to an entire alternative cluster}}.
+\end{aligned}
+\]
+The observation itself is \emph{excluded} when computing $a(i)$; \emph{every} member of each competing cluster is included when computing $b(i)$.
+
+\subq{(a) Point $x_i=2$, assigned to $C_1$}
+\textbf{Step 1 --- its own cluster.} The other members of $C_1$ are $0$ and $7$, hence
+\[
+a(2)=\frac{|2-0|+|2-7|}{3-1}=\frac{2+5}{2}=\boxed{3.5}.
+\]
+\textbf{Step 2 --- each alternative cluster.} Do \emph{not} compare only the nearest points:
+\[
+\begin{aligned}
+\bar d(2,C_2)&=\frac{|2-8|+|2-9|}{2}=\frac{6+7}{2}=6.5,\\
+\bar d(2,C_3)&=\frac{|2-15|+|2-18|}{2}=\frac{13+16}{2}=14.5.
+\end{aligned}
+\]
+\textbf{Step 3 --- nearest alternative cluster in average distance.}
+\[
+b(2)=\min\{6.5,14.5\}=\boxed{6.5},\qquad
+s(2)=\frac{6.5-3.5}{\max\{3.5,6.5\}}=\boxed{\frac{6}{13}\approx0.462}.
+\]
+
+\subq{(b) Point $x_i=7$, also assigned to $C_1$}
+\textbf{Step 1.} Excluding $7$ itself gives
+\[
+a(7)=\frac{|7-0|+|7-2|}{2}=\frac{7+5}{2}=\boxed{6}.
+\]
+\textbf{Step 2.} Average distance to each other cluster:
+\[
+\bar d(7,C_2)=\frac{|7-8|+|7-9|}{2}=\frac{1+2}{2}=1.5,
+\]
+\[
+\bar d(7,C_3)=\frac{|7-15|+|7-18|}{2}=\frac{8+11}{2}=9.5.
+\]
+\textbf{Step 3.} Therefore
+\[
+b(7)=\min\{1.5,9.5\}=\boxed{1.5},\qquad
+s(7)=\frac{1.5-6}{\max\{6,1.5\}}=\boxed{-0.75}.
+\]
+A negative silhouette means that $7$ is on average \emph{closer to cluster $C_2$} than to the other observations of its assigned cluster $C_1$. This is a sign of possible misassignment, not proof that the clustering algorithm made a computational error.
+
+\subq{(c) Why the nearest individual point is not $b(i)$}
+For $x_i=2$, the nearest observation outside $C_1$ is $8$, at distance $6$. But $b(2)=6.5$ because it is the \emph{mean of the two distances} $6$ and $7$ to the whole closest competing cluster. With more than two clusters, evaluate each competing cluster's \emph{average} first, then select the smallest average.
+
+\begin{answer}
+\textbf{Memory rule:} $a(i)$ = average distance to \emph{other observations in your own cluster}; $b(i)$ = smallest \emph{cluster-average} distance among all competing clusters. Here,
+\[
+\boxed{(a(2),b(2),s(2))=(3.5,6.5,6/13)},\qquad
+\boxed{(a(7),b(7),s(7))=(6,1.5,-0.75)}.
+\]
+\end{answer}
