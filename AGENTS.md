@@ -24,3 +24,6 @@
 
 - The Part II guide presents the complete translated question in a `problem` box before each solution, with `\\clearpage` before each exercise input. Maintain separate-page sections.
 - Supplemental lecture examples must label their provenance (lecture 16 BPE, lecture 17 TF--IDF) and distinguish new numerical illustrations from source material. Check numerical claims with standard-library assertions in `verify_numbers.py`.
+
+- The Part II guide includes `reviews/linkage_selection.tex`, `reviews/information_criteria.tex`, and `reviews/gmm_covariance.tex`. New review chapters must start on new pages, use `reviewproblem` rather than falsely claiming a supplied-guide question, and state which facts came from the lectures versus supplementary analysis.
+- Maintain the distinction between centroid height inversions and tree topology, BIC/AIC criteria and actual model probabilities, and covariance-model restrictions versus EM's E/M optimizer. Check `verify_numbers.py` and compile/visually inspect the PDF before pushing.

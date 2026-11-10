@@ -233,6 +233,32 @@ Q_{1-\alpha/2}(\Delta_1^*,\ldots,\Delta_B^*)\right]}.
 \]
 This interval targets the test-sampling uncertainty \emph{conditional on the fitted models} when test cases can be treated as exchangeable draws from the target population. For dependent records use a resampling design that preserves dependence; to include training variability, additionally account for model refitting. Zero inside a two-sided interval means no conclusive direction at that nominal level, not proof of equal generalization.
 
+\subsection{Review formulas: inversion, likelihood penalties, and covariance constraints}
+\textbf{Agglomerative merge choice.} Given current clusters $\mathcal C$ and a linkage function $D_L$,
+\[
+\boxed{(U^*,V^*)=\argmin_{U,V\in\mathcal C,\ U\ne V}D_L(U,V)}.
+\]
+For complete linkage, $D_L(U,V)=\max_{u\in U,v\in V}d(u,v)$: an \emph{outer minimum} of an \emph{inner maximum}. A centroid inversion occurs when a later merge at height $h_{t+1}$ satisfies $h_{t+1}<h_t$; the nested-cluster tree remains, but the merge-height scale loses monotonicity. See Section~\ref{sec:centroid-inversion}.
+
+\textbf{Score changes when adding parameters.} With maximized log-likelihood gain $\Delta\ell$ and free-parameter increase $\Delta q>0$,
+\[
+\boxed{\Delta\mathrm{AIC}=-2\Delta\ell+2\Delta q},\qquad
+\boxed{\Delta\mathrm{BIC}=-2\Delta\ell+\Delta q\log n}.
+\]
+The more complex model wins under a given criterion if its score difference is negative. Equivalently, the fit gain must exceed $\Delta q$ for AIC and $\frac12\Delta q\log n$ for BIC. Here $\log$ denotes the \emph{natural} logarithm.
+
+\textbf{GMM free-parameter count.} For $K$ components in dimension $p$,
+\[
+q=(K-1)+Kp+q_{\rm cov},\qquad
+\boxed{q_{\rm cov}=\begin{cases}
+K&\texttt{spherical},\\
+Kp&\texttt{diag},\\
+p(p+1)/2&\texttt{tied},\\
+Kp(p+1)/2&\texttt{full}.
+\end{cases}}
+\]
+All four types can be fitted using EM: they are \emph{parameter constraints} on the covariance update, not four different EM objectives. Model selection may optimize $K$ and \texttt{covariance\_type} jointly. The numerical comparison is worked through in Section~\ref{sec:review-covariance}.
+
 \subsection{Quick numerical answer sheet}
 \begin{center}\small
 \begin{tabularx}{\textwidth}{@{}lX@{}}\toprule

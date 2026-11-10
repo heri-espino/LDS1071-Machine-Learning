@@ -12,12 +12,16 @@ study-guide/partial-2/
 │   ├── exercise02.tex       # Elbow method
 │   ├── ...
 │   └── exercise16.tex       # Paired bootstrap
+├── reviews/
+│   ├── linkage_selection.tex      # Linkage choice, failure modes, inversion
+│   ├── information_criteria.tex   # When to use AIC/BIC + derivations
+│   └── gmm_covariance.tex         # Four covariance structures, parameter counts
 ├── appendix_formulas.tex    # All relevant formulas and numerical check sheet
 ├── verify_numbers.py       # Pure-standard-library arithmetic checks
 └── README.md
 ```
 
-Each `exercises/exerciseNN.tex` corresponds to exactly one numbered exercise in the source and defines one `\section`. Every exercise **starts on a new page** and includes its full **problem statement, faithfully translated into English**, before the solution. `main.tex` is the only TeX entrypoint. The appendix is introduced after `\appendix`.
+Each `exercises/exerciseNN.tex` corresponds to exactly one numbered exercise in the source and defines one `\section`. Every exercise **starts on a new page** and includes its full **problem statement, faithfully translated into English**, before the solution. `main.tex` is the only TeX entrypoint. Each of the three topic-review sections also begins on a new page and contains a self-contained **supplementary practice prompt** clearly distinguished from the original 16 exercises. The appendix is introduced after `\appendix`.
 
 ## Compile
 
@@ -47,6 +51,8 @@ To rebuild after editing, rerun `latexmk`. To clean auxiliary build files, from 
 - **Lecture 16 BPE (Exercise 10):** a fully counted, four-merge numerical example uses the supplied `set new new renew reset renew` corpus. The within-word merge restriction follows the lecture. A tie-break order is explicitly chosen to produce a reproducible illustration, not falsely attributed as the lecture's mandatory order.
 - **Lecture 17 TF--IDF (Exercise 11):** the `sweet love` query and four original documents are included, with document frequencies, query/document TF--IDF vectors, cosine scores, ranking, and an illustration of sparse text vectors. Values follow the *lecture's* base-10, unsmoothed definition.
 - **Additional constructed numerical examples:** DBSCAN with core/border/noise (Exercise 3); one E/M iteration for a two-Gaussian mixture with fixed variances (Exercise 4); five hierarchical linkage methods including Ward's SSE increase (Exercise 5). These are explicitly marked as extensions rather than claimed to be new source questions.
+- **Lecture-based technical reviews:** lecture 12 four linkage methods and centroid inversion (including a three-point numerical counterexample, plus Ward as an extension); lecture 10 BIC/AIC selection logic and the four `GaussianMixture.covariance_type` options. These chapters clearly distinguish material in the lecture slides from additional practical recommendations and numerical constructions.
+- **Scikit-Learn/SciPy implementation:** Scikit-Learn supports `single`, `complete`, `average`, `ward`; SciPy supports `centroid`, whose merge heights may not be monotone.
 - This is a practice guide, not a guarantee of the content on the actual exam.
 
 ## Maintenance / agent handoff

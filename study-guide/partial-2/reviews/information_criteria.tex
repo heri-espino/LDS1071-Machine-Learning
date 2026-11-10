@@ -1,0 +1,82 @@
+\section{Review: when to choose AIC or BIC for Gaussian mixtures}
+\label{sec:review-criteria}
+\begin{concept}
+\textbf{Lecture grounding.} Lecture 10 introduces selecting the number of mixture components with AIC and BIC (slides 44 onward), because $K$-means inertia is poorly suited to Gaussian clusters with different shapes or sizes. The supplied Midterm II guide, Exercise~\ref{sec:ex4}, gives a table in which BIC selects $K=3$ but AIC selects $K=4$. \textbf{Extensions below:} predictive versus model-identification goals, likelihood-gain thresholds, and caveats for small samples and mixtures.
+\end{concept}
+\begin{reviewproblem}
+\textbf{Supplementary exercise (constructed from the lecture).}
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Write AIC and BIC using maximized log-likelihood, number of free parameters, and sample size.
+\item Explain why a more complicated Gaussian mixture can have better likelihood but worse BIC.
+\item If a complex model adds $\Delta q=2$ parameters and increases the maximized log-likelihood by $\Delta\ell=3$ for $n=100$, which model do AIC and BIC prefer?
+\item Explain when held-out log-likelihood, AIC, or BIC is a sensible model-selection target. Can BIC be interpreted as an exact posterior probability?
+\end{enumerate}
+\end{reviewproblem}
+
+\subsection*{(a) Same fit term, different complexity penalty}
+Let $\hat\ell_M=\sum_{i=1}^n\log p(x_i\mid\hat\theta_M,M)$ be the maximized \emph{log-likelihood} for candidate model $M$; $q_M$ is its number of \emph{free scalar parameters}, and $n$ is the sample size. Define
+\[
+\boxed{\mathrm{AIC}(M)=-2\hat\ell_M+2q_M},\qquad
+\boxed{\mathrm{BIC}(M)=-2\hat\ell_M+q_M\log n}.
+\]
+Here $\log$ is the \emph{natural} logarithm; it is \textbf{not} the base-10 logarithm prescribed for TF--IDF elsewhere in this guide. \textbf{Within either criterion, smaller is better.} Do not compare an AIC number directly against a BIC number as if they shared a single scale of preference.
+
+\subsection*{(b) Why the criteria may disagree}
+Adding components or using freer covariance matrices often increases the maximum training log-likelihood, but it also adds parameters. For two candidates, define
+\[
+\Delta\ell=\hat\ell_{\rm complex}-\hat\ell_{\rm simple},\qquad
+\Delta q=q_{\rm complex}-q_{\rm simple}>0.
+\]
+Subtract the scores of the simpler model from those of the complex model:
+\[
+\begin{aligned}
+\Delta\mathrm{AIC}&=-2\Delta\ell+2\Delta q,\\
+\Delta\mathrm{BIC}&=-2\Delta\ell+\Delta q\log n.
+\end{aligned}
+\]
+The more complex model wins if its \emph{difference is negative}, equivalently
+\[
+\boxed{\Delta\ell>\Delta q\quad\text{(AIC)},\qquad
+\Delta\ell>\tfrac12\Delta q\log n\quad\text{(BIC)}.}
+\]
+For $n>e^2\approx7.39$, BIC's additional penalty per parameter exceeds AIC's. This does \emph{not} mean that BIC necessarily chooses fewer components in every dataset, because the compared models can have different fitted likelihoods.
+
+\subsection*{(c) Numerical selection example}
+Here $n=100$, $\Delta q=2$, and $\Delta\ell=3$. Therefore
+\[
+\Delta\mathrm{AIC}=-2(3)+2(2)=\boxed{-2},
+\]
+so \textbf{AIC prefers the complex model}, but
+\[
+\Delta\mathrm{BIC}=-2(3)+2\log(100)
+=-6+9.21034=\boxed{3.21034},
+\]
+so \textbf{BIC prefers the simpler model}. The complexity increase improves fit enough for AIC but not for BIC.
+
+Return to the \emph{actual supplied exercise}:
+\begin{center}\small
+\begin{tabular}{@{}crrrr@{}}\toprule
+Components $K$ & 1 & 2 & 3 & 4\\\midrule
+AIC & 775 & 585 & 520 & \textbf{515}\\
+BIC & 790 & 620 & \textbf{574} & 590\\\bottomrule
+\end{tabular}
+\end{center}
+Thus $\boxed{K_{\rm AIC}=4}$ and $\boxed{K_{\rm BIC}=3}$. The \emph{difference between BIC and AIC} is not itself a hypothesis test; each score ranks candidates by its own objective.
+
+\subsection*{(d) Matching the criterion to the statistical goal}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{@{}p{3.25cm}X X@{}}\toprule
+Goal & Reasonable primary comparison & Important qualification\\\midrule
+Out-of-sample density prediction & Held-out average log-likelihood; AIC as an in-sample approximation to expected predictive information loss. & Splits must reflect how future observations will arrive; repeated tuning on the same test set biases the estimate.\\
+Selecting a parsimonious number of mixture components & BIC: a large-sample approximation related to Bayesian \emph{marginal model evidence}. & It relies on regularity/model assumptions; mixture models can violate them near coincident components or vanishing mixture weights.\\
+Small samples relative to parameter count & Prefer a defensible held-out evaluation; consider finite-sample corrections where assumptions justify them. & The common AICc formula is not automatically valid for every Gaussian-mixture parameterization.\\
+Interpretable clusters & Compare scores \emph{and} inspect stability, component overlap, and domain meaning. & Lower AIC/BIC cannot certify that an inferred component is a real-world category.\\\bottomrule
+\end{tabularx}
+\end{center}
+\begin{important}
+BIC is \emph{not} a literal $P(M\mid X)$ or $P(z_i=k\mid x_i)$; the first is a model posterior probability and the second is a GMM component responsibility. BIC approximates, under suitable conditions and up to omitted terms, $-2\log p(X\mid M)$, where $p(X\mid M)$ integrates the likelihood over a prior on parameters. AIC instead targets predictive information loss. Both are \emph{selection criteria}, not training algorithms.
+\end{important}
+\textbf{Practical sequence:} define the prediction or explanation goal; enumerate candidate component counts and covariance types; fit them with multiple random starts; compare an appropriate score; then inspect model stability and meaningfulness. The covariance restrictions and free-parameter counts appear in Section~\ref{sec:review-covariance}.
+
+\textbf{Source trail:} LDS1071 lecture 10 (from slide 44); \href{https://scikit-learn.org/stable/auto_examples/mixture/plot_gmm_selection.html}{Scikit-Learn Gaussian mixture model selection guide}.

@@ -1,0 +1,111 @@
+\section{Review: hierarchical linkage choices and failure modes}
+\label{sec:review-linkage}
+\begin{concept}
+\textbf{Lecture grounding.} Lecture 12, \emph{Hierarchical Clustering / Agglomerative Clustering}, slides 42--56, explicitly covers four cluster-dissimilarity definitions: \emph{complete, single, average, centroid}. It notes the single-linkage chaining problem, that average/complete often produce more balanced groups, and that centroid linkage can produce \emph{inversions}. \textbf{Extensions below:} practical selection advice, the constructed inversion coordinates, Ward's variance criterion, and the comparison of software implementations.
+\end{concept}
+\begin{reviewproblem}
+\textbf{Supplementary exercise (constructed from the lecture).}
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item State the dissimilarity optimized by single, complete, average, centroid, and Ward linkage. Why does \emph{complete} use a maximum but still merge the \emph{smallest} candidate?
+\item Give a plausible application and a characteristic failure for each method.
+\item For $A=(-1,0)$, $B=(1,0)$, $C=(0,1.9)$, compute the centroid-linkage merge heights and identify an inversion. Does the hierarchy cease to be a tree?
+\item State which linkage methods are offered by \texttt{sklearn.cluster.AgglomerativeClustering} and which library can compute centroid linkage.
+\end{enumerate}
+\end{reviewproblem}
+
+\subsection*{(a) Two optimizations, not one}
+At any agglomerative step, let $\mathcal C$ be the family of current, disjoint clusters. A \emph{linkage} function first defines a dissimilarity $D_L(U,V)$ between two candidate clusters. The actual merge is then
+\[
+\boxed{(U^*,V^*)=\argmin_{\substack{U,V\in\mathcal C\\U\ne V}}D_L(U,V).}
+\]
+For Euclidean point distance $d(x,y)=\norm{x-y}_2$, the lecture's four rules are
+\begin{align*}
+D_{\rm single}(U,V)&=\min_{u\in U,v\in V}d(u,v),\\
+D_{\rm complete}(U,V)&=\max_{u\in U,v\in V}d(u,v),\\
+D_{\rm average}(U,V)&=\frac{1}{|U||V|}\sum_{u\in U}\sum_{v\in V}d(u,v),\\
+D_{\rm centroid}(U,V)&=\norm{\bar x_U-\bar x_V}_2,\qquad
+\bar x_U=\frac{1}{|U|}\sum_{u\in U}u.
+\end{align*}
+\begin{important}
+\textbf{Complete linkage minimizes a maximum:}
+\[
+\boxed{\min_{U\ne V}\ \left[\max_{u\in U,v\in V}d(u,v)\right].}
+\]
+The \emph{inner maximum} defines how far apart two clusters are; the \emph{outer minimum} decides which pair is merged. This is also the merge rule documented by Scikit-Learn. For the original $A=0,B=3,C=7,D=13$ exercise, the complete-linkage heights remain $3,6,13$ (Exercise~\ref{sec:ex5}).
+\end{important}
+
+\textbf{Ward linkage (additional method, not among the lecture's four named linkage definitions).} Ward merges the pair whose union produces the smallest increase in within-cluster sum of squared errors:
+\[
+\boxed{\Delta\mathrm{SSE}(U,V)=\frac{|U||V|}{|U|+|V|}\norm{\bar x_U-\bar x_V}_2^2.}
+\]
+This uses Euclidean geometry and is related to the objective optimized by $K$-means. The \emph{increase in SSE} is not necessarily the dendrogram height reported by a software package: SciPy's Ward linkage heights use $\sqrt{2\Delta\mathrm{SSE}}$ for Euclidean observations.
+
+\subsection*{(b) Choosing a linkage method: usefulness and failure modes}
+\begin{center}\small
+\renewcommand{\arraystretch}{1.22}
+\begin{tabularx}{\textwidth}{@{}p{1.8cm}X X@{}}\toprule
+Method & Consider it when\ldots & What can go wrong\\\midrule
+\textbf{Single} & Groups form long, curved, connected shapes with clear gaps; topology/connectedness is more important than compactness. & \emph{Chaining:} one short bridge of outliers can fuse otherwise distinct groups. \\
+\textbf{Complete} & You want relatively compact clusters and want to limit their worst cross-pair separation. & Outliers can dominate the maximum; elongated genuine clusters may split.\\
+\textbf{Average} & You want an intermediate compromise based on \emph{all} cross-pair distances; can work with non-Euclidean dissimilarities. & Averages conceal local bridges and heterogeneous geometry; cluster sizes and group structure can influence merges.\\
+\textbf{Centroid} & Euclidean means are meaningful and you want to compare representative centers directly. & \emph{Inversions:} merge heights can decrease; centroids can conceal nonconvexity or bridge through empty space.\\
+\textbf{Ward} & Euclidean, scaled numeric data; compact, roughly spherical groups and control of within-group variance are desired. & Not suitable for arbitrary distances; sensitive to feature scale/outliers and can misrepresent irregular or very unequal-density clusters.\\\bottomrule
+\end{tabularx}
+\end{center}
+\textbf{Decision rule:} choose a distance metric and linkage together, scale features where justified, then check stability of cuts and domain interpretability. No linkage guarantees a scientifically meaningful partition. These recommendations are \emph{practical extensions}, not verbatim claims from the lecture.
+
+\subsection*{(c) A centroid-linkage inversion: calculate it}\label{sec:centroid-inversion}
+Consider three \emph{two-dimensional} points:
+\[
+A=(-1,0),\quad B=(1,0),\quad C=(0,1.9).
+\]
+\begin{center}
+\begin{tikzpicture}[scale=0.92]
+  \draw[->,gray!70] (-2.1,0)--(2.1,0) node[right]{$x_1$};
+  \draw[->,gray!70] (0,-.3)--(0,2.5) node[above]{$x_2$};
+  \draw[dashed,navy!65] (-1,0)--(0,1.9)--(1,0)--cycle;
+  \foreach \x/\y/\lab/\anchor in {-1/0/A/below,1/0/B/below,0/1.9/C/above} {
+    \fill[navy] (\x,\y) circle (2.6pt);
+    \node[\anchor] at (\x,\y) {$\lab$};
+  }
+  \fill[forest] (0,0) circle (3pt);
+  \node[below right,forest] at (0,-.04) {$\bar x_{AB}$};
+\end{tikzpicture}
+\end{center}
+\textbf{Step 1:} compare singleton distances:
+\[
+\begin{aligned}
+d(A,B)&=\sqrt{(1+1)^2}=\boxed{2},\\
+d(A,C)=d(B,C)&=\sqrt{1+1.9^2}=\sqrt{4.61}\approx\boxed{2.14709}.
+\end{aligned}
+\]
+The closest initial pair is $(A,B)$, so \textbf{the first merge occurs at height $2$}.
+
+\textbf{Step 2:} recompute the centroid of the newly formed cluster:
+\[
+\bar x_{AB}=\frac{A+B}{2}=(0,0).
+\]
+Now only $\{A,B\}$ and $\{C\}$ remain. Their centroid-linkage distance is
+\[
+D_{\rm centroid}(\{A,B\},\{C\})=\norm{(0,0)-(0,1.9)}_2=\boxed{1.9}.
+\]
+Therefore the merge heights, \emph{in chronological order}, are
+\[
+\boxed{h_1=2,\qquad h_2=1.9<h_1.}
+\]
+\begin{important}
+An \textbf{inversion} means a later merge has a \emph{smaller} recorded height than an earlier merge. It \textbf{does not destroy the combinatorial tree}: the nested sets are still $\{A\},\{B\},\{C\}\rightarrow\{A,B\}\rightarrow\{A,B,C\}$. What fails is the usual monotone-height interpretation of a dendrogram. A naive horizontal distance cut is no longer equivalent to merely following the chronological merge order.
+\end{important}
+
+\subsection*{(d) Software distinction and reproducible check}
+Scikit-Learn's \texttt{AgglomerativeClustering} supports\\
+\texttt{single}, \texttt{complete}, \texttt{average}, and \texttt{ward}. It does \emph{not} implement centroid linkage. SciPy supports it through \texttt{linkage}:
+\begin{lstlisting}
+import numpy as np
+from scipy.cluster.hierarchy import linkage
+
+X = np.array([[-1.0, 0.0], [1.0, 0.0], [0.0, 1.9]])
+Z = linkage(X, method="centroid", metric="euclidean")
+print(Z[:, 2])  # [2.0, 1.9]: an inversion
+\end{lstlisting}
+\textbf{Source trail:} LDS1071 lecture 12 (slides 42--56); \href{https://scikit-learn.org/stable/modules/clustering.html}{Scikit-Learn hierarchical clustering documentation}; \href{https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html}{SciPy \texttt{linkage} reference}.

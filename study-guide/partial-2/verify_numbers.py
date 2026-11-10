@@ -4,7 +4,7 @@ Run from the repository root:
     python study-guide/partial-2/verify_numbers.py
 No third-party dependencies.
 """
-from math import isclose, log10, sqrt
+from math import isclose, log, log10, sqrt
 
 # Exercise 1: K-means means, inertia, and assignment stability.
 points = [1, 3, 9, 12]
@@ -174,3 +174,47 @@ assert sorted(range(4), key=lambda i: scores[i], reverse=True) == [0,2,1,3]
 assert isclose((10000-100)/10000, 0.99)
 
 print('All additional BPE, search, DBSCAN, GMM, and linkage checks passed.')
+
+
+# Review section: a strict centroid-linkage inversion in the constructed triangle.
+triangle = [(-1.0, 0.0), (1.0, 0.0), (0.0, 1.9)]
+assert isclose(dist(triangle[0], triangle[1]), 2.0)
+assert isclose(dist(triangle[0], triangle[2]), sqrt(4.61))
+assert isclose(dist(triangle[1], triangle[2]), sqrt(4.61))
+centroid_ab = tuple((a+b)/2 for a,b in zip(triangle[0],triangle[1]))
+assert centroid_ab == (0,0)
+assert isclose(dist(centroid_ab,triangle[2]),1.9)
+assert 1.9 < 2 < sqrt(4.61)
+
+# GMM number of free scalar parameters for K=3, p=2.
+K,p=3,2
+base_parameters=(K-1)+K*p
+params={'spherical': base_parameters+K,
+        'diag': base_parameters+K*p,
+        'tied': base_parameters+p*(p+1)//2,
+        'full': base_parameters+K*p*(p+1)//2}
+assert params == {'spherical':11, 'diag':14, 'tied':11, 'full':17}
+ll={'spherical':-135,'diag':-126,'tied':-124,'full':-115}
+aic={t:-2*ll[t]+2*params[t] for t in ll}
+bic={t:-2*ll[t]+params[t]*log(100) for t in ll}
+assert aic == {'spherical':292,'diag':280,'tied':270,'full':264}
+assert all(isclose(bic[t],v,abs_tol=.0005)
+           for t,v in {'spherical':320.657, 'diag':316.472,
+                       'tied':298.657,'full':308.288}.items())
+assert min(aic,key=aic.get)=='full'
+assert min(bic,key=bic.get)=='tied'
+assert isclose(-2*3+2*2,-2)
+assert isclose(-2*3+2*log(100),3.210340371976184)
+
+# SciPy is an optional independent cross-check; the standard library tests above
+# make this verification script reproducible even without SciPy installed.
+try:
+    import numpy as np
+    from scipy.cluster.hierarchy import linkage
+except ImportError:
+    pass
+else:
+    z=linkage(np.array(triangle),method='centroid',metric='euclidean')
+    assert np.allclose(z[:,2], [2.0,1.9])
+
+print('Hierarchical and GMM review examples verified.')

@@ -1,0 +1,146 @@
+\section{Review: GMM covariance types, EM, and model selection}
+\label{sec:review-covariance}
+\begin{concept}
+\textbf{Lecture grounding.} Lecture 10 introduces soft EM responsibilities, weighted updates of mixture weights, means and covariance matrices (slides 28--34), then presents \texttt{covariance\_type} = \texttt{spherical}, \texttt{diag}, \texttt{tied}, \texttt{full} (slides 38--40). It warns that greater flexibility increases parameter count and computational cost. \textbf{Extensions below:} explicit free-parameter formulas, a constructed AIC/BIC model-comparison calculation, geometric failure cases, and a reproducible Scikit-Learn selection loop.
+\end{concept}
+\begin{reviewproblem}
+\textbf{Supplementary exercise (constructed from the lecture).}
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Explain what the covariance matrix controls geometrically and contrast \texttt{spherical}, \texttt{diag}, \texttt{tied}, and \texttt{full}.
+\item For $K=3$ components in $p=2$ dimensions, count the free parameters of each covariance model, including weights and means.
+\item At $n=100$, compare AIC and BIC for the hypothetical maximized log-likelihoods $-135,-126,-124,-115$ for \texttt{spherical}, \texttt{diag}, \texttt{tied}, and \texttt{full}, respectively.
+\item Explain whether choosing \texttt{covariance\_type} changes the EM \emph{algorithm}, and list possible optimization failures and safeguards.
+\end{enumerate}
+\end{reviewproblem}
+
+\subsection*{(a) What a covariance matrix represents}
+A $p$-dimensional Gaussian component $k$ has mean vector $\mu_k\in\R^p$ and covariance matrix $\Sigma_k$; its density is
+\[
+\mathcal N(x\mid\mu_k,\Sigma_k)=
+\frac{\exp\big[-\tfrac12(x-\mu_k)^\top\Sigma_k^{-1}(x-\mu_k)\big]}
+{(2\pi)^{p/2}\,|\Sigma_k|^{1/2}}.
+\]
+The diagonal entries $\Sigma_{k,jj}$ are variances along coordinate axes; off-diagonal entries $\Sigma_{k,ab}$ are covariances that permit tilted elliptical contours. In two dimensions, a \emph{full} covariance such as
+\[
+\Sigma=\begin{bmatrix}4&1.2\\1.2&1\end{bmatrix}
+\]
+can rotate the ellipse, while the diagonal restriction $\operatorname{diag}(4,1)$ cannot.
+\begin{center}
+\begin{tikzpicture}[scale=.85]
+\foreach \dx/\ttl/\rx/\ry/\ang in {0/spherical/0.85/0.85/0,3.0/diag/1.2/.6/0,6.0/tied/1.15/.58/30,9.0/full/1.3/.5/-27}{
+  \begin{scope}[shift={(\dx,0)}]
+    \draw[gray!55,->] (-1.4,0)--(1.4,0);
+    \draw[gray!55,->] (0,-1.2)--(0,1.2);
+    \draw[very thick,navy,rotate=\ang] (0,0) ellipse [x radius=\rx, y radius=\ry];
+    \node[below] at (0,-1.42) {\texttt{\ttl}};
+  \end{scope}}
+\end{tikzpicture}
+\end{center}
+\textit{Sketch:} a single representative component shape per model. In \texttt{tied}, all components share the \emph{same general covariance}, including orientation; in \texttt{spherical}, different components may have \emph{different} radii.
+
+\begin{center}\small
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{@{}p{1.8cm}p{3.7cm}X X@{}}\toprule
+Type & Constraint & Good starting situation & Characteristic limitation\\\midrule
+\texttt{spherical} & $\Sigma_k=\sigma_k^2 I$ & Compact, approximately round groups; fast, few parameters. & Cannot represent stretched or rotated density contours.\\
+\texttt{diag} & $\Sigma_k=\operatorname{diag}(\sigma_{k1}^2,\ldots,\sigma_{kp}^2)$ & Axis-aligned anisotropy; moderate/high dimensions where free rotations are unaffordable. & Cannot encode within-component feature correlations; results depend on coordinate system.\\
+\texttt{tied} & $\Sigma_k=\Sigma$ for every $k$ & Groups have approximately common shape and orientation, but different means. & Different component spreads/rotations are incorrectly forced equal.\\
+\texttt{full} & Each $\Sigma_k$ is unrestricted positive definite & Rotated, overlapping ellipses with component-specific shapes. & Many parameters; poor estimation with few points per component; near-singular covariance.\\\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection*{(b) Derive the total number of free parameters}
+A mixture has $K$ weights $\pi_1,\ldots,\pi_K$ with $\sum_k\pi_k=1$, hence $\boxed{K-1}$ free weights, and $K$ separate $p$-dimensional means, hence $\boxed{Kp}$ free mean coordinates. A symmetric $p\times p$ covariance has $p(p+1)/2$ independent entries. Thus
+\[
+\boxed{q=(K-1)+Kp+q_{\mathrm{cov}}},\quad
+q_{\mathrm{cov}}=\begin{cases}
+K&\texttt{spherical},\\
+Kp&\texttt{diag},\\
+\tfrac{p(p+1)}{2}&\texttt{tied},\\
+\tfrac{Kp(p+1)}{2}&\texttt{full}.
+\end{cases}
+\]
+For $K=3$, $p=2$, the common part is $K-1+Kp=2+6=8$. Therefore
+\[
+\begin{array}{c|rrrr}
+\text{type}&\texttt{spherical}&\texttt{diag}&\texttt{tied}&\texttt{full}\\\hline
+q_{\rm cov}&3&6&3&9\\
+\boxed{q_{\rm total}}&11&14&11&17
+\end{array}
+\]
+Although \texttt{spherical} and \texttt{tied} each have 11 parameters \emph{in this example}, they encode \emph{different geometric restrictions}.
+
+\subsection*{(c) Numerical comparison of model families}
+\textbf{Important:} the log-likelihoods in this table are \emph{constructed values for arithmetic practice}, not fitted results from the lecture. Take $n=100$, $K=3$, $p=2$, with respective maximized log-likelihoods $\hat\ell$ shown below. Use $\log 100\approx4.605170$:
+\[
+\mathrm{AIC}=-2\hat\ell+2q,\qquad
+\mathrm{BIC}=-2\hat\ell+q\log100.
+\]
+For \texttt{full}, $q=17$, $\hat\ell=-115$:
+\[
+\mathrm{AIC}_{\rm full}=230+34=\boxed{264},\qquad
+\mathrm{BIC}_{\rm full}=230+17(4.605170)\approx\boxed{308.288}.
+\]
+For \texttt{tied}, $q=11$, $\hat\ell=-124$:
+\[
+\mathrm{AIC}_{\rm tied}=248+22=\boxed{270},\qquad
+\mathrm{BIC}_{\rm tied}=248+11(4.605170)\approx\boxed{298.657}.
+\]
+\begin{center}\small
+\begin{tabular}{@{}lrrrr@{}}\toprule
+Covariance model & $q$ & $\hat\ell$ & AIC & BIC\\\midrule
+\texttt{spherical} & 11 & $-135$ & 292 & 320.657\\
+\texttt{diag} & 14 & $-126$ & 280 & 316.472\\
+\texttt{tied} & 11 & $-124$ & 270 & \textbf{298.657}\\
+\texttt{full} & 17 & $-115$ & \textbf{264} & 308.288\\\bottomrule
+\end{tabular}
+\end{center}
+\begin{answer}
+In this deliberately constructed comparison, \textbf{AIC selects \texttt{full}} while \textbf{BIC selects \texttt{tied}}. This shows that information criteria can select \emph{both a covariance structure and a component count}, not merely $K$.
+\end{answer}
+
+\subsection*{(d) EM is the optimizer; covariance type defines the model}
+The Gaussian mixture density is $p(x)=\sum_{k=1}^{K}\pi_k\mathcal N(x\mid\mu_k,\Sigma_k)$. At the E-step, EM computes \emph{responsibilities}
+\[
+\gamma_{ik}=\frac{\pi_k\mathcal N(x_i\mid\mu_k,\Sigma_k)}{\sum_{j=1}^{K}\pi_j\mathcal N(x_i\mid\mu_j,\Sigma_j)}.
+\]
+The unconstrained M-step updates $N_k=\sum_i\gamma_{ik}$, $\pi_k=N_k/n$, $\mu_k=N_k^{-1}\sum_i\gamma_{ik}x_i$, and
+\[
+\widehat\Sigma_k=\frac1{N_k}\sum_i\gamma_{ik}(x_i-\mu_k)(x_i-\mu_k)^\top.
+\]
+\textbf{The covariance restriction changes the allowed M-step update, not the fundamental E/M alternation:}
+\begin{itemize}
+\item \texttt{full}: keep each $\widehat\Sigma_k$;\quad \texttt{diag}: keep only its diagonal;
+\item \texttt{spherical}: replace it by $[\operatorname{tr}(\widehat\Sigma_k)/p]I$;
+\item \texttt{tied}: pool component weighted scatter into one common matrix,
+$\displaystyle\widehat\Sigma=\frac1n\sum_{k=1}^{K}\sum_{i=1}^{n}\gamma_{ik}(x_i-\mu_k)(x_i-\mu_k)^\top$.
+\end{itemize}
+Thus choosing \texttt{covariance\_type} is \emph{model selection}; setting \texttt{n\_init} or \texttt{init\_params} addresses \emph{optimization initialization}. Neither is the same as using a different EM algorithm.
+
+\subsection*{(e) Reproducible selection with Scikit-Learn}
+\begin{lstlisting}
+import numpy as np
+from sklearn.mixture import GaussianMixture
+
+# X is a numeric matrix, shape (n_observations, n_features).
+# Fit candidates to the same training data for comparable AIC/BIC.
+candidates = []
+for K in range(1, 7):
+    for covariance in ["spherical", "diag", "tied", "full"]:
+        model = GaussianMixture(
+            n_components=K,
+            covariance_type=covariance,
+            n_init=10,           # try several EM initializations
+            reg_covar=1e-6,      # numerical covariance safeguard
+            random_state=42,
+        ).fit(X)
+        candidates.append((model.bic(X), model.aic(X), K, covariance, model))
+
+best_by_bic = min(candidates, key=lambda row: row[0])
+best_by_aic = min(candidates, key=lambda row: row[1])
+print("BIC choice:", best_by_bic[2:4])
+print("AIC choice:", best_by_aic[2:4])
+\end{lstlisting}
+\textbf{Failure checks:} EM is sensitive to initialization and can converge to local optima; components can collapse toward extremely small variance; a flexible $p\times p$ covariance is unstable when effective per-component sample size is small; excessive components may describe noise rather than meaningful clusters. Inspect $\texttt{converged\_}$, compare initializations, consider \texttt{reg\_covar}, and evaluate held-out log-likelihood when prediction matters.
+
+\textbf{Source trail:} LDS1071 lecture 10 (slides 28--40); \href{https://scikit-learn.org/stable/modules/generated/sklearn.mixture.GaussianMixture.html}{Scikit-Learn \texttt{GaussianMixture} reference}; \href{https://scikit-learn.org/stable/auto_examples/mixture/plot_gmm_selection.html}{GMM model-selection example}.
