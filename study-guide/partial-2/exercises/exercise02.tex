@@ -1,7 +1,14 @@
 \section{Selecting the number of clusters with the elbow method}
 \label{sec:ex2}
-\textbf{Given:}
+\begin{problem}
+For $K$-means, the inertia values are:
 \begin{center}\begin{tabular}{@{}rrrrrr@{}}\toprule $K$&1&2&3&4&5\\\midrule Inertia&900&440&210&185&170\\\bottomrule\end{tabular}\end{center}
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Which value of $K$ does the elbow method suggest? Justify it.
+\item Why should you not automatically choose the $K$ with the smallest inertia?
+\item Name another way to evaluate the clusters and explain one limitation of that measure.
+\end{enumerate}
+\end{problem}
 
 \subq{(a) Which $K$ does the elbow method suggest?}
 The elbow heuristic favors the point beyond which the decrease in inertia becomes much smaller. Calculate successive improvements:

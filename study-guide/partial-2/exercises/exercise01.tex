@@ -1,6 +1,15 @@
 \section{One iteration of $K$-means}
 \label{sec:ex1}
-\textbf{Given:} One-dimensional observations $X=\{1,3,9,12\}$, $K=2$, and initial centroids $\mu_1^{(0)}=1$, $\mu_2^{(0)}=12$.
+\begin{problem}
+One-dimensional observations are $X=\{1,3,9,12\}$, with $K=2$ and initial centroids $\mu_1^{(0)}=1$, $\mu_2^{(0)}=12$.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Assign each observation to its nearest centroid using Euclidean distance.
+\item Compute the updated centroids $\mu_1^{(1)}$ and $\mu_2^{(1)}$.
+\item Calculate inertia $\sum_i\norm{x_i-\mu_{c(i)}}_2^2$ using the \emph{updated} centroids.
+\item If you repeat assignment with those updated centroids, does any cluster membership change? Explain.
+\end{enumerate}
+\end{problem}
+
 
 \begin{concept}
 $K$-means alternates two operations: (i) assign each point to its nearest centroid; (ii) replace each centroid with its assigned points' arithmetic mean. Its objective is the \emph{within-cluster sum of squares} $J=\sum_i\norm{x_i-\mu_{c(i)}}_2^2$.

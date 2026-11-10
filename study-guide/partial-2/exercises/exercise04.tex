@@ -1,7 +1,15 @@
 \section{Gaussian mixture models: interpretation, BIC, and AIC}
 \label{sec:ex4}
-\textbf{Given:} Partially overlapping elliptical groups; model-selection scores:
+\begin{problem}
+A dataset appears to contain partly overlapping elliptical groups. Gaussian mixture models with different numbers of components have these information criteria:
 \begin{center}\begin{tabular}{@{}rrrrr@{}}\toprule Components&1&2&3&4\\\midrule BIC&790&620&574&590\\ AIC&775&585&520&515\\\bottomrule\end{tabular}\end{center}
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Select a model using BIC; then select one using AIC.
+\item Explain why a Gaussian mixture can model some groups that $K$-means represents poorly.
+\item Interpret a GMM component membership probability of $0.7$.
+\item Describe the fit--complexity trade-off in BIC.
+\end{enumerate}
+\end{problem}
 
 \subq{(a) Which component count is selected by each criterion?}
 Both criteria are minimized, not maximized. For BIC, the minimum is $\boxed{574}$ at $\boxed{K=3}$. For AIC, the minimum is $\boxed{515}$ at $\boxed{K=4}$. Different choices are possible because they penalize complexity differently; no sample size or parameter counts are supplied here for decomposing their numerical values.
@@ -32,3 +40,47 @@ A more complex model often raises $\hat\ell$ (better training fit) but also incr
 \begin{answer}
 Choose $\boxed{3}$ components under BIC and $\boxed{4}$ under AIC. The disagreement illustrates the competing penalties for model complexity.
 \end{answer}
+
+\subsection*{Additional numerical example: a Gaussian mixture EM iteration}
+\textbf{Worked problem (constructed for practice).} For observations $X=\{0,1,3\}$, initialize a two-component \emph{one-dimensional} Gaussian mixture with $\pi_1=\pi_2=0.5$, $\mu_1=0$, $\mu_2=3$, and \emph{known fixed} variances $\sigma_1^2=\sigma_2^2=1$. Perform one E-step and one M-step updating the mixing proportions and means. Fixing variances keeps the arithmetic tractable.
+
+\textbf{Step 1 --- write each Gaussian density.}
+\[
+\phi(x;\mu,1)=\frac{1}{\sqrt{2\pi}}\exp\!\left[-\frac{(x-\mu)^2}{2}\right].
+\]
+\textbf{Step 2 --- E-step: find soft membership probabilities.} Equal mixture weights and variances let us cancel $0.5/\sqrt{2\pi}$ in Bayes' formula:
+\[
+\gamma_{i1}=\frac{e^{-x_i^2/2}}{e^{-x_i^2/2}+e^{-(x_i-3)^2/2}},\qquad
+\gamma_{i2}=1-\gamma_{i1}.
+\]
+At $x_2=1$ specifically,
+\[
+\gamma_{21}=\frac{e^{-1/2}}{e^{-1/2}+e^{-2}}
+=\frac{1}{1+e^{-1.5}}=\boxed{0.817574}.
+\]
+\begin{center}\begin{tabular}{@{}rrr@{}}\toprule $x_i$ & $\gamma_{i1}$ & $\gamma_{i2}$\\\midrule
+$0$ & $0.989013$ & $0.010987$\\
+$1$ & $0.817574$ & $0.182426$\\
+$3$ & $0.010987$ & $0.989013$\\\bottomrule
+\end{tabular}\end{center}
+Unlike hard $K$-means labels, both components have a probability for each observation.
+
+\textbf{Step 3 --- M-step: calculate effective component sizes.}
+\[
+N_1=0.989013+0.817574+0.010987=1.817574,\quad N_2=3-N_1=1.182426.
+\]
+\textbf{Step 4 --- update weights and means.}
+\[
+\begin{aligned}
+\pi_1^{\rm new}&=N_1/3=\boxed{0.605858}, &
+\pi_2^{\rm new}&=N_2/3=\boxed{0.394142},\\
+\mu_1^{\rm new}&=\frac{0(0.989013)+1(0.817574)+3(0.010987)}{1.817574}
+=\boxed{0.467951},\\
+\mu_2^{\rm new}&=\frac{0(0.010987)+1(0.182426)+3(0.989013)}{1.182426}
+=\boxed{2.663563}.
+\end{aligned}
+\]
+\textbf{Step 5 --- interpret.} Component $1$ has about $1.82$ \emph{effective} observations rather than an integer count. Its mean moves toward positive values because of their soft memberships. A practical fitting algorithm repeats E and M steps until a convergence rule is satisfied.
+\begin{important}
+This is EM for a \emph{constrained} mixture: both component variances stay equal to $1$. A freely estimated GMM also updates covariances, as in the formula appendix. This calculation is one iteration, not a globally optimized fit.
+\end{important}

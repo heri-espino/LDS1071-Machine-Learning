@@ -1,6 +1,15 @@
 \section{Discovering topics in 12,000 unlabeled abstracts}
 \label{sec:ex13}
-\textbf{Given:} A digital library contains $12{,}000$ article abstracts without topic labels and wants interpretable groups.
+\begin{problem}
+A digital library holds $12{,}000$ article abstracts with no topical labels and wants interpretable topic groups.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Design a workflow covering text preprocessing, vectorization, clustering, and evaluation.
+\item Compare TF--IDF against length-normalized Bag of Words counts.
+\item Silhouette is $0.48$ at $K=4$ and $0.53$ at $K=7$. Should $K=7$ be accepted automatically? What should be checked?
+\item How can a human-readable topic be assigned to each cluster without true labels?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Design the preprocessing--vectorization--clustering--evaluation pipeline}
 \begin{enumerate}[label=\textbf{Step \arabic*.}]

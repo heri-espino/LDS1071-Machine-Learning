@@ -1,6 +1,15 @@
 \section{Agglomerative clustering: single and complete linkage}
 \label{sec:ex5}
-\textbf{Given:} $A=0$, $B=3$, $C=7$, $D=13$ on the real line.
+\begin{problem}
+Consider four observations on the real line: $A=0$, $B=3$, $C=7$, $D=13$.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Construct the pairwise Euclidean-distance matrix.
+\item Give the three agglomerative merges under \emph{single linkage}, including their heights.
+\item Repeat with \emph{complete linkage}. Break any ties alphabetically.
+\item Compare the two methods: what distance between clusters does each one measure?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Construct the Euclidean distance matrix}
 In one dimension, $d(P,Q)=\abs{P-Q}$. For example, $d(B,D)=\abs{3-13}=10$ and $d(C,D)=\abs{7-13}=6$. Compute every pair and use symmetry:
@@ -53,3 +62,63 @@ The source specifies alphabetical tie-breaking. No equal minimum distances arise
 \textbf{Single:} $AB$ at $3$; $(AB)C$ at $4$; $(ABC)D$ at $6$.\\
 \textbf{Complete:} $AB$ at $3$; $CD$ at $6$; $(AB)(CD)$ at $13$.
 \end{answer}
+
+\subsection*{Additional numerical example: average, centroid, and Ward linkage}
+\textbf{Worked problem (extension of Exercise 5).} Keep $A=0$, $B=3$, $C=7$, $D=13$. Compute a full agglomerative sequence with \emph{average}, \emph{centroid}, and \emph{Ward} criteria. Compare the resulting merges with single and complete linkage above.
+
+\textbf{Step 1 --- average linkage.} Its distance is the arithmetic mean of \emph{all cross-cluster pair distances}:
+\[
+d_{\rm avg}(U,V)=\frac{1}{|U||V|}\sum_{u\in U}\sum_{v\in V}|u-v|.
+\]
+First merge $A,B$ at $3$. The remaining candidate distances are
+\[
+\begin{aligned}
+d_{\rm avg}(\{A,B\},C)&=\frac{7+4}{2}=5.5,\\
+d_{\rm avg}(C,D)&=6,\\
+d_{\rm avg}(\{A,B\},D)&=\frac{13+10}{2}=11.5.
+\end{aligned}
+\]
+Merge $\{A,B\}$ and $C$ at $5.5$, then
+\[
+d_{\rm avg}(\{A,B,C\},D)=\frac{13+10+6}{3}=\boxed{\frac{29}{3}\approx9.667}.
+\]
+
+\textbf{Step 2 --- centroid linkage.} Here $d_{\rm centroid}(U,V)=|\bar x_U-\bar x_V|$ is the distance \emph{between means}. After the first merge, $\bar x_{AB}=1.5$ and
+\[
+d_{\rm centroid}(\{A,B\},C)=|1.5-7|=5.5<6=d(C,D).
+\]
+Merge $\{A,B\}$ with $C$ at $5.5$. Its updated centroid is $\bar x_{ABC}=(0+3+7)/3=10/3$, so the last merge occurs at
+\[
+d_{\rm centroid}(\{A,B,C\},D)=\left|\frac{10}{3}-13\right|=\boxed{\frac{29}{3}}.
+\]
+For \emph{these} collinear points, average and centroid linkage happen to give the same distances. They are \emph{different} criteria in general: averaging distances is not the same as measuring the distance between means.
+
+\textbf{Step 3 --- Ward linkage.} Ward chooses the merge with the smallest \emph{increase in total within-cluster sum of squares}:
+\[
+\Delta_{\rm Ward}(U,V)=\frac{|U||V|}{|U|+|V|}\norm{\bar x_U-\bar x_V}_2^2.
+\]
+For singletons, $\Delta(A,B)=3^2/2=4.5$, $\Delta(B,C)=4^2/2=8$, and $\Delta(C,D)=6^2/2=18$, so merge $A,B$. Now
+\[
+\begin{aligned}
+\Delta(AB,C)&=\frac23(7-1.5)^2=\frac{121}{6}\approx20.167,\\
+\Delta(C,D)&=\frac12(13-7)^2=18,\\
+\Delta(AB,D)&=\frac23(13-1.5)^2=\frac{529}{6}\approx88.167.
+\end{aligned}
+\]
+Merge $C,D$ next. Their mean is $\bar x_{CD}=10$. The last increase is
+\[
+\Delta(AB,CD)=\frac{2\cdot2}{2+2}(10-1.5)^2=\boxed{72.25}.
+\]
+\textbf{Step 4 --- compare all five methods.}
+\begin{center}\small
+\begin{tabular}{@{}p{2.45cm}p{4.65cm}p{3.45cm}@{}}\toprule
+Criterion & Merge sequence & Values at each merge\\\midrule
+Single & $AB\to(AB)C\to(ABC)D$ & $3,4,6$\\
+Complete & $AB\to CD\to(AB)(CD)$ & $3,6,13$\\
+Average & $AB\to(AB)C\to(ABC)D$ & $3,5.5,29/3$\\
+Centroid & $AB\to(AB)C\to(ABC)D$ & $3,5.5,29/3$\\
+Ward (SSE increase) & $AB\to CD\to(AB)(CD)$ & $4.5,18,72.25$\\\bottomrule
+\end{tabular}\end{center}
+\begin{important}
+Ward's values here are \emph{increases in squared error}, not Euclidean distances. Some software renders Ward heights on a different scale (for example $\sqrt{2\Delta}$). Centroid linkage can exhibit \emph{inversions} on other datasets: dendrogram merge distances need not be monotone for that criterion.
+\end{important}

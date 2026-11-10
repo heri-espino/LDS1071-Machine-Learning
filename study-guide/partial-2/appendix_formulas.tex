@@ -81,6 +81,14 @@ d_{\rm centroid}(A,B)=d(\mu_A,\mu_B).
 \]
 A dendrogram's vertical merge height is the applicable linkage distance at that merge. Cutting at height $h$ leaves the connected components formed by merges occurring below that height; if a cut coincides with a merge height, state whether you include that merge.
 
+
+\paragraph{Ward linkage (extra numerical exercise).}
+For Euclidean points and clusters $A,B$ with sizes $|A|,|B|$ and means $\bar x_A,\bar x_B$, the \emph{increase in total within-cluster squared error} from merging the two groups is
+\[
+\boxed{\Delta_{\rm Ward}(A,B)=\frac{|A||B|}{|A|+|B|}\norm{\bar x_A-\bar x_B}_2^2}.
+\]
+Ward chooses the pair minimizing $\Delta_{\rm Ward}$, which is a \emph{change in squared-error objective} rather than the maximum or average of cross-cluster Euclidean distances. Some implementations report a transformed dendrogram height; compare Ward heights only under a stated convention.
+
 \subsection{Silhouette: per observation and average}
 For observation $x_i$ assigned to cluster $C_i$ with at least two members,
 \[
@@ -152,6 +160,23 @@ Cosine distance is commonly defined as $d_{\cos}(x,y)=1-\operatorname{sim}_{\cos
 =2d_{\cos}(x,y).
 \]
 This connects Euclidean and cosine separation when representations are normalized.
+
+
+\subsection{BPE, word boundaries, and text-search ranking (lecture extensions)}
+\textbf{BPE within-word pair counts.} Write the word types in the corpus as $w$, with occurrence multiplicities $f(w)$. Suppose their current token sequences are $T(w)=(t_1,\ldots,t_{m_w})$. The score for a candidate adjacent pair $(a,b)$ is
+\[
+\boxed{c(a,b)=\sum_w f(w)\sum_{j=1}^{m_w-1}\mathbf1\{t_j=a,\ t_{j+1}=b\}}.
+\]
+At each step, select a pair with largest $c(a,b)$ (specify a tie rule), replace each consecutive occurrence of that pair \emph{inside each word} with one new token, and recount. In the lecture-16 corpus, the initial largest pair frequency is $4$ (a tie between $(n,e)$ and $(e,w)$). This model explicitly does not count adjacent characters from \emph{different} words; other BPE implementations can use explicit end-of-word tokens or byte-level preprocessing, so this convention is specific to the demonstrated procedure.
+
+\textbf{Document retrieval via TF--IDF cosine.} For query $q$ and document $d$, use the same ordered vocabulary $V$, the corpus's fitted IDF values, and the same term-frequency convention for both:
+\[
+\boxed{w_{t,d}=\mathrm{tf}_{t,d}\,\mathrm{idf}_t},\qquad
+\boxed{\operatorname{score}(q,d)=\frac{\displaystyle\sum_{t\in V}w_{t,q}w_{t,d}}{\displaystyle\sqrt{\sum_{t\in V}w_{t,q}^2}\sqrt{\sum_{t\in V}w_{t,d}^2}}}.
+\]
+The formula requires nonzero query and document vectors. In the lecture-17 search illustration, $V=(\texttt{sweet},\texttt{nurse},\texttt{love},\texttt{how},\texttt{sorrow},\texttt{is})$ and $\mathrm{idf}(\texttt{sweet})=\log_{10}(4/3)$, $\mathrm{idf}(\texttt{nurse})=\mathrm{idf}(\texttt{love})=\log_{10}2$, while the remaining three terms have IDF $\log_{10}4$. The full ranking is derived in Exercise~\ref{sec:ex11}.
+
+\textbf{Sparsity.} The \emph{density} of a nonzero document feature vector $x\in\R^p$ is $\mathrm{nnz}(x)/p$, where $\mathrm{nnz}$ counts nonzero entries; its \emph{sparsity fraction} is $1-\mathrm{nnz}(x)/p$. A vector with at most $100$ nonzeros among $10{,}000$ vocabulary coordinates is at least $99\%$ sparse.
 
 \subsection{Logistic regression and leakage-free evaluation}
 For binary classification, $z=\beta_0+\beta^\top x$, the sigmoid model and decision rule are

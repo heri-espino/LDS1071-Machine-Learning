@@ -1,6 +1,15 @@
 \section{PCA and explained variance}
 \label{sec:ex8}
-\textbf{Given:} The centered-data covariance matrix has eigenvalues $\lambda_1=6$, $\lambda_2=2$, $\lambda_3=1$, $\lambda_4=1$, sorted from largest to smallest.
+\begin{problem}
+The covariance matrix of centered data has eigenvalues $\lambda_1=6$, $\lambda_2=2$, $\lambda_3=1$, and $\lambda_4=1$.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Calculate the explained-variance percentage for each principal component.
+\item Find the fewest components needed to preserve at least $85\%$ of the total variance.
+\item Explain why principal directions are orthogonal and what the first component optimizes.
+\item Explain why low reconstruction error under PCA need not improve classification.
+\end{enumerate}
+\end{problem}
+
 
 \begin{concept}
 For a covariance matrix $\Sigma$, each principal direction $v_j$ satisfies $\Sigma v_j=\lambda_j v_j$. Its eigenvalue is the variance of data projected onto that unit-length direction. The total variance is $\operatorname{tr}(\Sigma)=\sum_j\lambda_j$.

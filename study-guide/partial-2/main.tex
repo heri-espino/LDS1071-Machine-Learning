@@ -40,6 +40,8 @@
 
 \newtcolorbox{answer}{breakable,colback=mint,colframe=forest,boxrule=.65pt,arc=1.2mm,left=2mm,right=2mm,top=1mm,bottom=1mm}
 \newtcolorbox{important}{breakable,colback=cream,colframe=amber,boxrule=.6pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,title=Important distinction,fonttitle=\bfseries}
+\newtcolorbox{problem}{breakable,colback=white,colframe=navy,boxrule=.75pt,arc=1.2mm,left=2.8mm,right=2.8mm,top=1.5mm,bottom=1.5mm,title=Problem --- faithful English translation of the practice guide,fonttitle=\bfseries}
+\newtcolorbox{worked}{breakable,colback=pale,colframe=navy,boxrule=.75pt,arc=1.2mm,left=2.8mm,right=2.8mm,top=1.5mm,bottom=1.5mm,title=Additional worked example (from lecture material),fonttitle=\bfseries}
 \newtcolorbox{concept}{breakable,colback=pale,colframe=navy,boxrule=.6pt,arc=1mm,left=2mm,right=2mm,top=1mm,bottom=1mm,title=Underlying idea,fonttitle=\bfseries}
 \newcommand{\subq}[1]{\subsection*{#1}}
 \newcommand{\E}{\mathbb E}
@@ -70,29 +72,46 @@
 \addcontentsline{toc}{section}{Notation and essential vocabulary}
 Let $n$ denote the number of observations, $p$ the number of features, and $K$ the number of clusters. The dataset is $X=\{x_i\}_{i=1}^{n}$, with $x_i\in\R^p$; $c(i)$ denotes the cluster assigned to observation $i$; and $\mu_k$ denotes centroid $k$. We write $\norm{v}_2$ for Euclidean norm, $\norm{v}_2^2$ for its square, $\lambda_j$ for an eigenvalue, and $\hat y_i$ for a predicted label.
 
-\textbf{Glossary.} A \emph{centroid} is a cluster's arithmetic mean; \emph{inertia} is within-cluster sum of squared distances; \emph{linkage} specifies distance between clusters; a \emph{manifold} is a locally low-dimensional surface that may curve inside a higher-dimensional space; a \emph{mixture responsibility} is a component's conditional probability for an observation; \emph{data leakage} is information from validation or test data improperly used during model fitting; a \emph{paired resample} preserves alignment of outcomes and both models' predictions for each observation.
+\textbf{Glossary.} A \emph{centroid} is a cluster's arithmetic mean; \emph{inertia} is within-cluster sum of squared distances; \emph{linkage} specifies distance between clusters; a \emph{manifold} is a locally low-dimensional surface that may curve inside a higher-dimensional space; a \emph{mixture responsibility} is a component's conditional probability for an observation; \emph{data leakage} is information from validation or test data improperly used during model fitting; a \emph{BPE merge} combines the most frequent adjacent token pair within word boundaries; \emph{IDF} weights terms by document rarity; a \emph{paired resample} preserves alignment of outcomes and both models' predictions for each observation.
 
 \begin{important}
 \textbf{How to study.} For each exercise, reproduce the calculation without looking at the answer, then explain \emph{why} its formula is appropriate. The complete formula reference appears in Appendix~\ref{sec:formulas}.
 \end{important}
 \clearpage
 
+% Each exercise begins on its own new page, even when the preceding exercise ends mid-page.
 % One exercise per included source file; numbering follows the supplied guide.
+\clearpage
 \input{exercises/exercise01}
+\clearpage
 \input{exercises/exercise02}
+\clearpage
 \input{exercises/exercise03}
+\clearpage
 \input{exercises/exercise04}
+\clearpage
 \input{exercises/exercise05}
+\clearpage
 \input{exercises/exercise06}
+\clearpage
 \input{exercises/exercise07}
+\clearpage
 \input{exercises/exercise08}
+\clearpage
 \input{exercises/exercise09}
+\clearpage
 \input{exercises/exercise10}
+\clearpage
 \input{exercises/exercise11}
+\clearpage
 \input{exercises/exercise12}
+\clearpage
 \input{exercises/exercise13}
+\clearpage
 \input{exercises/exercise14}
+\clearpage
 \input{exercises/exercise15}
+\clearpage
 \input{exercises/exercise16}
 \clearpage
 \appendix

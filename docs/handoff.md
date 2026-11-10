@@ -21,3 +21,12 @@
 - Locally validated with `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build main.tex` (25 pages, no overfull boxes) and `python verify_numbers.py` (all arithmetic checks pass).
 - `.gitignore` excludes generated PDFs; `.github/workflows/build-study-guide.yml` supports selecting partial-1 or partial-2 for downloadable GitHub Actions artifacts.
 - Next: if the source exercise sheet is revised, update individual exercises and numerical checks; rebuild before committing. Do not invent answers to data-dependent questions without data.
+
+## Midterm II expanded exercises and lecture examples
+
+- Added faithful English problem-statement boxes before all 16 exercise solutions. All exercises are forced to begin on a new page in `study-guide/partial-2/main.tex`.
+- Exercise 3 has a constructed 8-point DBSCAN computation (Euclidean neighborhoods, cores, borders, and noise); Exercise 4 includes an illustrative fixed-variance 1D GMM EM iteration; Exercise 5 adds average, centroid and Ward linkage to the original single/complete problem. Ward values are explicitly SSE increases and must not be confused with Euclidean dendrogram heights.
+- Exercise 10 extends the lecture-16 word-boundary example with a four-merge BPE run over `set new new renew reset renew`. Candidate pair counts use word multiplicities, exclude cross-word boundaries and explicitly resolve the ties. The original lecture excerpt does not mandate those tie choices.
+- Exercise 11 works through lecture-17 search for `sweet love` in four documents, including IDF, TF--IDF vectors, cosine scores, ranking and an explanation of sparse vectors, using base-10 IDF and no smoothing.
+- Verified `python study-guide/partial-2/verify_numbers.py` (original and extended numerical assertions), `latexmk -pdf -interaction=nonstopmode -halt-on-error -outdir=build main.tex` (43 pages), absence of overfull LaTeX boxes, and PDF text extraction confirming exercises 1--16 begin on 16 distinct pages. The compiled PDF is available as an attached user artifact and reproducible via GitHub Actions.
+- The updated formula appendix includes Ward, BPE pair-count frequencies, text-retrieval cosine and sparsity. New exercises are pedagogical extensions, not additional questions claimed to appear in the supplied five-page practice guide.

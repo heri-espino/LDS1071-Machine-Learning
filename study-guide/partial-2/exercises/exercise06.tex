@@ -1,6 +1,15 @@
 \section{Reading and drawing a dendrogram}
 \label{sec:ex6}
-\textbf{Given merges:} $A$ with $B$ at height $1$; $D$ with $E$ at $2$; $\{A,B\}$ with $C$ at $4$; and $\{A,B,C\}$ with $\{D,E\}$ at $9$.
+\begin{problem}
+An agglomerative clustering procedure has the following merges: $A$ and $B$ at height $1$; $D$ and $E$ at height $2$; $\{A,B\}$ with $C$ at height $4$; and $\{A,B,C\}$ with $\{D,E\}$ at height $9$.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Draw a schematic dendrogram respecting these heights.
+\item Cut at height $3$: how many clusters are there, and which points are in each?
+\item Cut at height $6$: how many clusters are there, and which points are in each?
+\item What information does a dendrogram's merge height convey?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Draw a dendrogram with the specified heights}
 The vertical coordinate records the linkage height at which two clusters join. The branches below reproduce the exact merge sequence:

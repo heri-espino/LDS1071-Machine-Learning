@@ -1,6 +1,7 @@
 \section{Tokenization and Bag of Words}
 \label{sec:ex10}
-\textbf{Given documents (already normalized and tokenized):}
+\begin{problem}
+These three documents have already been normalized and tokenized:
 \[
 \begin{aligned}
 d_1&:\ \texttt{modelo aprende modelo},\\
@@ -8,7 +9,15 @@ d_2&:\ \texttt{datos aprende},\\
 d_3&:\ \texttt{modelo datos datos}.
 \end{aligned}
 \]
-Use the \emph{fixed ordered vocabulary} $V=[\texttt{modelo},\texttt{aprende},\texttt{datos}]$.
+Use the \emph{ordered} vocabulary $V=[\texttt{modelo},\texttt{aprende},\texttt{datos}]$.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Construct the document--term frequency matrix (Bag of Words).
+\item Construct the binary presence/absence matrix using the same vocabulary.
+\item Explain two limitations of Bag of Words.
+\item Give an example where different tokenization changes the vocabulary and final representation.
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Construct the document--term frequency matrix}
 Count occurrences of each vocabulary term, in the stated order. For $d_1$, the counts are $2$, $1$, and $0$; for $d_2$, $0$, $1$, and $1$; for $d_3$, $1$, $0$, and $2$:
@@ -45,3 +54,53 @@ Consider the illustrative raw string \texttt{modelo-aprende}. A tokenizer that s
 \begin{answer}
 Count rows: $\boxed{(2,1,0),\ (0,1,1),\ (1,0,2)}$. Binary rows: $\boxed{(1,1,0),\ (0,1,1),\ (1,0,1)}$.
 \end{answer}
+
+\subsection*{Additional numerical example: Byte Pair Encoding (lecture 16)}
+\textbf{Worked problem adapted from the lecture-16 word-boundary example.} Consider the six word tokens
+\[
+\texttt{set}\quad\texttt{new}\quad\texttt{new}\quad\texttt{renew}\quad\texttt{reset}\quad\texttt{renew}.
+\]
+Start BPE with characters, count adjacent token pairs in the \emph{whole corpus}, and perform four merges. \textbf{All merges must remain inside individual words}; spaces mark boundaries and cannot themselves be merged here. The lecture supplies the algorithm and corpus, but no mandatory tie-breaking sequence: the choices below explicitly resolve ties for a reproducible worked example.
+
+\textbf{Step 1 --- initial word tokens and multiplicities.}
+\begin{center}\small
+\begin{tabular}{@{}lcl@{}}\toprule Word & Multiplicity & Initial tokens\\\midrule
+\texttt{set}&1&$[s,e,t]$\\
+\texttt{new}&2&$[n,e,w]$\\
+\texttt{renew}&2&$[r,e,n,e,w]$\\
+\texttt{reset}&1&$[r,e,s,e,t]$\\\bottomrule
+\end{tabular}\end{center}
+
+\textbf{Step 2 --- count adjacent within-word pairs.}
+\[
+\begin{array}{c|rrrrrrr}
+\text{pair}&(s,e)&(e,t)&(n,e)&(e,w)&(r,e)&(e,n)&(e,s)\\\hline
+\text{frequency}&2&2&4&4&3&2&1
+\end{array}
+\]
+For example, $(n,e)$ appears twice in the two copies of \texttt{new} and twice in \texttt{renew}: total $4$. The pair $(t,n)$ across the boundary \texttt{set new} is \emph{not} counted.
+
+\textbf{Step 3 --- merge $(n,e)\to ne$ (frequency $4$).} Pair $(e,w)$ also has frequency $4$; we choose $(n,e)$ to break the tie. Now
+\[
+\texttt{set}:[s,e,t],\quad\texttt{new}:[ne,w],\quad
+\texttt{renew}:[r,e,ne,w],\quad\texttt{reset}:[r,e,s,e,t].
+\]
+\textbf{Step 4 --- recount, merge $(ne,w)\to new$ (frequency $4$).} Both copies of \texttt{new} and \texttt{renew} contain the pair $(ne,w)$. It becomes one token \texttt{new}; \texttt{renew} is now $[r,e,new]$.
+
+\textbf{Step 5 --- merge $(r,e)\to re$ (frequency $3$).} The pair appears twice in \texttt{renew} and once in \texttt{reset}. Thus \texttt{renew} becomes $[re,new]$, while \texttt{reset} becomes $[re,s,e,t]$.
+
+\textbf{Step 6 --- merge $(re,new)\to renew$ (frequency $2$).} At this point $(re,new)$, $(s,e)$, and $(e,t)$ each have count $2$; we choose $(re,new)$ as the second documented tie choice.
+\begin{center}\small
+\begin{tabular}{@{}clcl@{}}\toprule
+Merge & New token & Frequency at merge & Example consequence\\\midrule
+1 & $n+e\to ne$ & 4 & $[n,e,w]\to[ne,w]$\\
+2 & $ne+w\to new$ & 4 & $[ne,w]\to[new]$\\
+3 & $r+e\to re$ & 3 & $[r,e,new]\to[re,new]$\\
+4 & $re+new\to renew$ & 2 & $[re,new]\to[renew]$\\\bottomrule
+\end{tabular}\end{center}
+\textbf{Result after four merges:}
+\[
+\texttt{set}:[s,e,t],\quad\texttt{new}:[new],\quad
+\texttt{renew}:[renew],\quad\texttt{reset}:[re,s,e,t].
+\]
+BPE learns variable-length subword units via \emph{corpus-wide frequency counts}, while \emph{each merge acts inside a single word}. Different tie choices can produce a different learned vocabulary.

@@ -21,3 +21,6 @@
 - For `study-guide/partial-2/`, keep one numbered exercise per `exercises/exerciseNN.tex`, include them in `main.tex`, and maintain `appendix_formulas.tex`.
 - Preserve the source guide's numerical givens and formulas (especially its unsmoothed base-10 TF--IDF convention). Document explicitly where illustrative methods extend the supplied problems.
 - Recompile LaTeX and run `python study-guide/partial-2/verify_numbers.py` after changes. Generated PDFs are excluded from Git; publish via the build workflow artifact instead.
+
+- The Part II guide presents the complete translated question in a `problem` box before each solution, with `\\clearpage` before each exercise input. Maintain separate-page sections.
+- Supplemental lecture examples must label their provenance (lecture 16 BPE, lecture 17 TF--IDF) and distinguish new numerical illustrations from source material. Check numerical claims with standard-library assertions in `verify_numbers.py`.

@@ -1,6 +1,16 @@
 \section{Silhouette coefficient}
 \label{sec:ex7}
-\textbf{Given:} $a(x_1)=3$, $b(x_1)=9$; $a(x_2)=5$, $b(x_2)=4$. Here $a(i)$ is the mean dissimilarity to other points of the same cluster and $b(i)$ the smallest mean dissimilarity to points in another cluster.
+\begin{problem}
+For two observations, the average within-cluster distance $a(i)$ and nearest other-cluster average distance $b(i)$ are:
+\begin{center}\begin{tabular}{@{}lrr@{}}\toprule Observation&$a(i)$&$b(i)$\\\midrule $x_1$&3&9\\$x_2$&5&4\\\bottomrule\end{tabular}\end{center}
+Use $s(i)=[b(i)-a(i)]/\max\{a(i),b(i)\}$.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Calculate both silhouette coefficients.
+\item Interpret the sign of each coefficient.
+\item Does a high average silhouette guarantee meaningful domain-specific groups? Explain.
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Calculate both silhouettes}
 Use the exact formula supplied by the guide:

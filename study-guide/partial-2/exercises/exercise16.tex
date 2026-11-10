@@ -1,6 +1,14 @@
 \section{Fair model comparison and paired bootstrap}
 \label{sec:ex16}
-\textbf{Given:} Models $A$ and $B$ are evaluated on the \emph{same news documents}; $F_1(A)=0.81$, $F_1(B)=0.83$.
+\begin{problem}
+Two news classifiers, $A$ and $B$, are evaluated on the \emph{same} documents. Their $F_1$ scores are $0.81$ and $0.83$, respectively.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item State two requirements for a fair comparison.
+\item Is the observed difference enough to conclude $B$ generalizes better? Explain.
+\item Explain conceptually how to use a \emph{paired bootstrap test} for uncertainty in the performance difference. What must remain paired in every resample?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) State at least two requirements for a fair comparison}
 \begin{enumerate}

@@ -1,6 +1,15 @@
 \section{Cosine similarity of document vectors}
 \label{sec:ex12}
-\textbf{Given:} $u=(2,0,1)$, $v=(1,0,2)$, and $w=(0,3,0)$.
+\begin{problem}
+Three document vectors are $u=(2,0,1)$, $v=(1,0,2)$, $w=(0,3,0)$. For nonzero vectors use
+\[\operatorname{sim}_{\cos}(x,y)=\frac{x^\top y}{\norm{x}_2\norm{y}_2}.\]
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Calculate $\operatorname{sim}_{\cos}(u,v)$ and $\operatorname{sim}_{\cos}(u,w)$.
+\item Which document is most similar to $u$? Justify.
+\item What is $\operatorname{sim}_{\cos}(u,3u)$, and what text-representation property does this illustrate?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Compute $\operatorname{sim}_{\cos}(u,v)$ and $\operatorname{sim}_{\cos}(u,w)$}
 Cosine similarity measures alignment between \emph{nonzero} vectors:

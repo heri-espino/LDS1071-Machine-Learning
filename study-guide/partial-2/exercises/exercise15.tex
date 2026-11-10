@@ -1,11 +1,15 @@
 \section{Confusion matrix and classification metrics}
 \label{sec:ex15}
-\textbf{Given:} $120$ messages; ``urgent'' is the \textbf{positive} class. The matrix in the guide has predicted classes in rows and true classes in columns:
-\begin{center}\begin{tabular}{@{}lrr@{}}\toprule
-&Actual urgent&Actual not urgent\\\midrule
-Predicted urgent&30&10\\
-Predicted not urgent&15&65\\\bottomrule
-\end{tabular}\end{center}
+\begin{problem}
+A classifier detects \emph{urgent} messages (positive class) among $120$ test messages. \emph{Rows are predicted classes and columns are true classes}:
+\begin{center}\begin{tabular}{@{}lrr@{}}\toprule &True urgent&True not urgent\\\midrule Predicted urgent&30&10\\Predicted not urgent&15&65\\\bottomrule\end{tabular}\end{center}
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Identify $TP$, $FP$, $FN$, $TN$.
+\item Calculate accuracy, precision, recall, and $F_1$.
+\item If missing an urgent message is especially costly, which metric would you prioritize? Why?
+\item Why can accuracy mislead for strongly imbalanced classes?
+\end{enumerate}
+\end{problem}
 
 \subq{(a) Identify TP, FP, FN, TN}
 \begin{itemize}

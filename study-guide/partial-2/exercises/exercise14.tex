@@ -1,6 +1,15 @@
 \section{Supervised classification of 8,000 labeled reviews}
 \label{sec:ex14}
-\textbf{Given:} $8{,}000$ reviews labeled \emph{positive} or \emph{negative}. Consider a text-classification pipeline with TF--IDF and logistic regression.
+\begin{problem}
+There are $8{,}000$ positive/negative \emph{labeled} reviews.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Explain how to construct a pipeline with \texttt{TfidfVectorizer} and \texttt{LogisticRegression}.
+\item Explain the roles of \texttt{fit}, \texttt{transform}, and \texttt{predict}.
+\item Why can fitting vocabulary and IDF on the whole corpus before a train/test split leak information?
+\item What is gained by comparing the TF--IDF pipeline with a \texttt{CountVectorizer} pipeline on the same splits?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Construct a \texttt{TfidfVectorizer} $\to$ \texttt{LogisticRegression} pipeline}
 \textbf{Step 1:} Reserve a stratified test split, so both classes remain represented. \textbf{Step 2:} Put every learned preprocessing operation and the classifier in one \texttt{Pipeline}. \textbf{Step 3:} Fit the pipeline \emph{only} on the training portion. \textbf{Step 4:} Predict on the untouched test portion and compute a confusion matrix, precision, recall, and $F_1$ (as appropriate).

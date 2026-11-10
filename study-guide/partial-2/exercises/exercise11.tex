@@ -1,6 +1,19 @@
 \section{TF--IDF calculations under the course convention}
 \label{sec:ex11}
-\textbf{Given:} $N=1000$ documents. The term \texttt{red} appears in $\mathrm{df}_{\rm red}=10$ documents and occurs $2$ times in the target document. The term \texttt{sistema} occurs in $\mathrm{df}_{\rm sistema}=100$ documents and appears $10$ times in that target document.
+\begin{problem}
+A corpus has $N=1000$ documents. The term \texttt{red} occurs in $10$ documents and appears twice in one target document; \texttt{sistema} occurs in $100$ documents and appears ten times in that target document. Use the lecture's \emph{unsmoothed, base-10} convention:
+\[
+\mathrm{tf}_{t,d}=\begin{cases}1+\log_{10}(\operatorname{count}(t,d)),&\operatorname{count}(t,d)>0,\\0,&\text{otherwise},\end{cases}
+\quad \mathrm{idf}_t=\log_{10}\frac{N}{\mathrm{df}_t}.
+\]
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Calculate both IDFs.
+\item Calculate TF and TF--IDF for both terms in the specified document.
+\item Explain why the term occurring more often in the document may receive less TF--IDF weight.
+\item What IDF does a term receive if it occurs in every document?
+\end{enumerate}
+\end{problem}
+
 
 \begin{important}
 The original guide explicitly requires the \emph{unsmoothed base-10} course definition below, \textbf{not} Scikit-Learn's default smoothed IDF. Mixing the conventions changes the answers.
@@ -50,3 +63,68 @@ If $\mathrm{df}_t=N$, then $\mathrm{idf}_t=\log_{10}(N/N)=\log_{10}(1)=\boxed{0}
 \begin{answer}
 $\boxed{\mathrm{tfidf}(\texttt{red})\approx2.60206>\mathrm{tfidf}(\texttt{sistema})=2.0}$; a corpus-wide term has IDF zero.
 \end{answer}
+
+\subsection*{Additional numerical example: TF--IDF document search (lecture 17)}
+\textbf{Lecture problem.} Find the document most relevant to \texttt{sweet love} using TF--IDF vectors and cosine similarity. The lecture-17 corpus is
+\[
+\begin{aligned}
+d_1&:\ \texttt{sweet sweet nurse love},\\
+d_2&:\ \texttt{sweet sorrow},\\
+d_3&:\ \texttt{how sweet is love},\\
+d_4&:\ \texttt{nurse}.
+\end{aligned}
+\]
+Keep the lecture's ordered vocabulary
+\[V=(\texttt{sweet},\texttt{nurse},\texttt{love},\texttt{how},\texttt{sorrow},\texttt{is}).\]
+\textbf{Step 1 --- document frequencies and IDF.} There are $N=4$ documents. A repeated term counts only once toward document frequency $\mathrm{df}$:
+\begin{center}\small
+\begin{tabular}{@{}lrrl@{}}\toprule
+Term & $\mathrm{df}$ & $\mathrm{idf}=\log_{10}(4/\mathrm{df})$ & Decimal\\\midrule
+\texttt{sweet} & 3 & $\log_{10}(4/3)$ & $0.124939$\\
+\texttt{nurse} & 2 & $\log_{10}(2)$ & $0.301030$\\
+\texttt{love} & 2 & $\log_{10}(2)$ & $0.301030$\\
+\texttt{how} & 1 & $\log_{10}(4)$ & $0.602060$\\
+\texttt{sorrow} & 1 & $\log_{10}(4)$ & $0.602060$\\
+\texttt{is} & 1 & $\log_{10}(4)$ & $0.602060$\\\bottomrule
+\end{tabular}\end{center}
+Define $a=\log_{10}(4/3)\approx0.124939$, $b=\log_{10}2\approx0.301030$, and $c=\log_{10}4\approx0.602060$.
+
+\textbf{Step 2 --- construct the query vector.} Both words occur once, so $\mathrm{tf}=1+\log_{10}(1)=1$:
+\[
+\boxed{q=(a,0,b,0,0,0)},\quad
+\norm q_2=\sqrt{a^2+b^2}\approx0.325928.
+\]
+\textbf{Step 3 --- construct document vectors.} Only $d_1$ repeats a term: $\mathrm{tf}(\texttt{sweet},d_1)=1+\log_{10}(2)\approx1.301030$. Set $a_2=(1+\log_{10}2)a\approx0.162549$:
+\[
+\begin{aligned}
+d_1&=(a_2,b,b,0,0,0),\\
+d_2&=(a,0,0,0,c,0),\\
+d_3&=(a,0,b,c,0,c),\\
+d_4&=(0,b,0,0,0,0).
+\end{aligned}
+\]
+\textbf{Step 4 --- compute cosine similarities.} First calculate $q^\top d$, then both norms, then their quotient. For $d_1$:
+\[
+\begin{aligned}
+q^\top d_1&=a\,a_2+b^2\approx0.110928,\\
+\norm{d_1}_2&=\sqrt{a_2^2+2b^2}\approx0.455698,\\
+\operatorname{sim}_{\cos}(q,d_1)&=\frac{0.110928}{0.325928(0.455698)}\approx\boxed{0.746865}.
+\end{aligned}
+\]
+The other dot products are $q^\top d_2=a^2$, $q^\top d_3=a^2+b^2$, and $q^\top d_4=0$.
+\begin{center}\small
+\begin{tabular}{@{}lrrr@{}}\toprule
+Document & $q^\top d$ & $\norm d_2$ & $\operatorname{sim}_{\cos}(q,d)$\\\midrule
+$d_1$ & $0.110928$ & $0.455698$ & $\mathbf{0.746865}$\\
+$d_2$ & $0.015610$ & $0.614887$ & $0.077889$\\
+$d_3$ & $0.106229$ & $0.911691$ & $0.357498$\\
+$d_4$ & $0$ & $0.301030$ & $0$\\\bottomrule
+\end{tabular}\end{center}
+\textbf{Step 5 --- rank the results.}
+\[
+\boxed{d_1\ (0.7469)>d_3\ (0.3575)>d_2\ (0.0779)>d_4\ (0)}.
+\]
+$d_1$ ranks first because it contains both query terms, and \texttt{sweet} occurs twice. Although $d_3$ also contains both, its additional distinctive terms \texttt{how} and \texttt{is} increase its vector norm and reduce its cosine score. \emph{All weights use the lecture's logarithmic TF and unsmoothed base-10 IDF; cosine provides its own norm normalization.}
+
+\subsection*{Why Bag of Words is sparse (also from lecture 17)}
+The lecture emphasizes that document--term vectors may be very long yet mostly zero. For example, if $p=10{,}000$ distinct vocabulary terms exist but one document contains $100$ distinct terms, the vector has at most $100$ nonzeros: at least $9{,}900/10{,}000=99\%$ of entries are zero. This is a \emph{sparse vector}. Sparse matrices store the nonzero coordinates and values, rather than allocating space for every zero.

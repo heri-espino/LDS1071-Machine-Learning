@@ -1,6 +1,15 @@
 \section{DBSCAN and noise observations}
 \label{sec:ex3}
-\textbf{Given:} Two dense, curved bands in two dimensions, some isolated points, and approximately comparable local densities within the bands.
+\begin{problem}
+A two-dimensional dataset contains two dense curved bands, a few isolated points, and approximately comparable densities within each band.
+\begin{enumerate}[label=\textbf{(\alph*)}]
+\item Explain why DBSCAN might be preferable to $K$-means.
+\item Define a core observation and explain the roles of $\varepsilon$ and \texttt{min\_samples}. Count the point itself in its neighborhood.
+\item What may happen to the clusters and noise if $\varepsilon$ is greatly increased while \texttt{min\_samples} stays fixed?
+\item What does the label $-1$ mean in Scikit-Learn's DBSCAN output?
+\end{enumerate}
+\end{problem}
+
 
 \subq{(a) Why might DBSCAN be preferable to $K$-means?}
 $K$-means assigns every point to a nearest centroid. Its Euclidean-distance, centroid-based partitions are Voronoi regions, so a curved band may be split unnaturally; distant outliers also receive cluster assignments. In contrast, DBSCAN groups points connected through sufficiently dense neighborhoods, which can follow curved or non-convex shapes. DBSCAN also explicitly detects sparse observations as noise, without requiring a predetermined $K$.
@@ -20,3 +29,57 @@ In \texttt{DBSCAN.labels\_}, $-1$ identifies an observation classified as noise 
 \begin{answer}
 DBSCAN is useful for comparable-density, non-convex clusters and noise. It is sensitive to neighborhood scale and may struggle when clusters have strongly different densities.
 \end{answer}
+
+\subsection*{Additional numerical example: DBSCAN with core, border, and noise points}
+\textbf{Worked problem (constructed for practice).} Apply DBSCAN to eight observations in $\R^2$ with Euclidean distance, $\varepsilon=1.1$, and $\texttt{min\_samples}=3$ (including the observation itself):
+\[
+\begin{aligned}
+&P_1=(0,0),\ P_2=(1,0),\ P_3=(0,1),\ P_4=(2,0),\\
+&P_5=(6,0),\ P_6=(7,0),\ P_7=(6,1),\ P_8=(10,10).
+\end{aligned}
+\]
+\textbf{Step 1 --- compute the decisive distances.} For example,
+\[
+\begin{aligned}
+d(P_1,P_2)&=1, & d(P_1,P_3)&=1, & d(P_2,P_3)&=\sqrt2>1.1,\\
+d(P_2,P_4)&=1, & d(P_5,P_6)&=1, & d(P_5,P_7)&=1,\\
+d(P_4,P_5)&=4>1.1. &&&&
+\end{aligned}
+\]
+\textbf{Step 2 --- enumerate the closed neighborhoods.} Each set contains the center point.
+\begin{center}\small
+\begin{tabular}{@{}clcl@{}}\toprule
+Point & $N_{1.1}(P_i)$ & Count & Classification\\\midrule
+$P_1$ & $\{P_1,P_2,P_3\}$ & 3 & Core\\
+$P_2$ & $\{P_1,P_2,P_4\}$ & 3 & Core\\
+$P_3$ & $\{P_1,P_3\}$ & 2 & Border\\
+$P_4$ & $\{P_2,P_4\}$ & 2 & Border\\
+$P_5$ & $\{P_5,P_6,P_7\}$ & 3 & Core\\
+$P_6$ & $\{P_5,P_6\}$ & 2 & Border\\
+$P_7$ & $\{P_5,P_7\}$ & 2 & Border\\
+$P_8$ & $\{P_8\}$ & 1 & Noise\\\bottomrule
+\end{tabular}
+\end{center}
+\textbf{Step 3 --- grow clusters from core points.} The core points $P_1,P_2$ are within $\varepsilon$ of one another; their neighborhoods contain $P_3,P_4$ as border points. Separately, core point $P_5$ reaches $P_6,P_7$. Point $P_8$ is unreachable from a core point.
+\[
+\boxed{C_1=\{P_1,P_2,P_3,P_4\}},\qquad
+\boxed{C_2=\{P_5,P_6,P_7\}},\qquad
+\boxed{\text{noise}=\{P_8\}}.
+\]
+\begin{center}
+\begin{tikzpicture}[scale=.58,
+  corept/.style={circle,fill=navy,inner sep=3.5pt},
+  borderpt/.style={circle,draw=navy,thick,fill=white,inner sep=3.5pt}]
+  \draw[->,gray] (-.7,0)--(11.2,0) node[right]{$x$};
+  \draw[->,gray] (0,-.7)--(0,11.1) node[above]{$y$};
+  \foreach \i/\x/\y in {1/0/0,2/1/0,5/6/0} {\node[corept,label=below:$P_{\i}$] at (\x,\y) {};}
+  \foreach \i/\x/\y in {3/0/1,4/2/0,6/7/0,7/6/1} {\node[borderpt,label=above:$P_{\i}$] at (\x,\y) {};}
+  \node[red!70!black,very thick,label=left:$P_8$] at (10,10) {$\times$};
+  \draw[densely dashed,forest,rounded corners] (-.4,-.6) rectangle (2.4,1.6);
+  \draw[densely dashed,forest,rounded corners] (5.5,-.6) rectangle (7.5,1.6);
+\end{tikzpicture}
+\end{center}
+\textbf{Step 4 --- alter the radius.} If $\varepsilon$ is increased to $4.1$, $d(P_4,P_5)=4$ now permits a connection between the two groups; because the bridge points become cores under the larger radius, the two clusters can merge. This is why parameter scale matters.
+\begin{important}
+The original guide's curved-band scenario is conceptual. These eight numerical observations are an \emph{additional constructed practice example}, not data from the lecture.
+\end{important}

@@ -75,3 +75,102 @@ assert isclose(2*tp/(2*tp+fp+fn), 12/17)
 # Exercise 16: only the point-estimate difference is derivable.
 assert isclose(0.83-0.81, 0.02)
 print('All Midterm II arithmetic checks passed.')
+
+# Additional numerical example: DBSCAN (epsilon-neighborhood includes the point).
+from math import dist, exp
+coordinates = [(0, 0), (1, 0), (0, 1), (2, 0),
+               (6, 0), (7, 0), (6, 1), (10, 10)]
+neighborhoods = [[j + 1 for j, v in enumerate(coordinates)
+                  if dist(u, v) <= 1.1 + 1e-12]
+                 for u in coordinates]
+assert neighborhoods == [[1, 2, 3], [1, 2, 4], [1, 3], [2, 4],
+                         [5, 6, 7], [5, 6], [5, 7], [8]]
+core = {i+1 for i, neigh in enumerate(neighborhoods) if len(neigh) >= 3}
+assert core == {1, 2, 5}
+border = {j for i in core for j in neighborhoods[i-1]} - core
+assert border == {3, 4, 6, 7}
+assert set(range(1, 9)) - core - border == {8}
+assert dist(coordinates[3], coordinates[4]) == 4.0
+
+# Additional numerical example: constrained 1D two-Gaussian EM iteration.
+observations = [0.0, 1.0, 3.0]
+gamma1 = [exp(-(x-0)**2/2) / (exp(-(x-0)**2/2)+exp(-(x-3)**2/2))
+          for x in observations]
+gamma2 = [1-g for g in gamma1]
+assert all(isclose(x, y, abs_tol=1e-6)
+           for x, y in zip(gamma1, [0.989013, 0.817574, 0.010987]))
+n1, n2 = sum(gamma1), sum(gamma2)
+assert isclose(n1, 1.8175744762, abs_tol=1e-8)
+assert isclose(n1/3, 0.6058581587, abs_tol=1e-8)
+mu1 = sum(x*g for x, g in zip(observations, gamma1))/n1
+mu2 = sum(x*g for x, g in zip(observations, gamma2))/n2
+assert isclose(mu1, 0.4679507306, abs_tol=1e-8)
+assert isclose(mu2, 2.6635628481, abs_tol=1e-8)
+
+# Additional numerical example: average, centroid, and Ward linkage.
+assert isclose((7+4)/2, 5.5)
+assert isclose((13+10+6)/3, 29/3)
+assert isclose(abs((0+3+7)/3-13), 29/3)
+ward = lambda n_u, n_v, mu_u, mu_v: (n_u*n_v/(n_u+n_v))*(mu_u-mu_v)**2
+assert isclose(ward(1, 1, 0, 3), 4.5)
+assert isclose(ward(2, 1, 1.5, 7), 121/6)
+assert isclose(ward(1, 1, 7, 13), 18)
+assert isclose(ward(2, 1, 1.5, 13), 529/6)
+assert isclose(ward(2, 2, 1.5, 10), 72.25)
+
+# Additional numerical example: BPE, with per-word boundaries and documented ties.
+from collections import Counter
+word_tokens = {'set': ['s','e','t'], 'new': ['n','e','w'],
+               'renew': ['r','e','n','e','w'], 'reset': ['r','e','s','e','t']}
+frequencies = {'set': 1, 'new': 2, 'renew': 2, 'reset': 1}
+def pair_counts():
+    return Counter({pair: total for pair, total in
+        ((pair, sum(freq*sum(a == pair[0] and b == pair[1]
+                        for a,b in zip(seq, seq[1:]))
+                    for word,seq in word_tokens.items()
+                    for freq in [frequencies[word]]))
+         for pair in {(a,b) for seq in word_tokens.values()
+                       for a,b in zip(seq,seq[1:])})})
+initial_pairs = pair_counts()
+assert initial_pairs == Counter({('s','e'):2, ('e','t'):2, ('n','e'):4,
+                                 ('e','w'):4, ('r','e'):3, ('e','n'):2,
+                                 ('e','s'):1})
+def do_merge(pair):
+    new = ''.join(pair)
+    for word, seq in word_tokens.items():
+        updated, idx = [], 0
+        while idx < len(seq):
+            if idx+1 < len(seq) and (seq[idx],seq[idx+1]) == pair:
+                updated.append(new)
+                idx += 2
+            else:
+                updated.append(seq[idx])
+                idx += 1
+        word_tokens[word] = updated
+for pair, count in [(('n','e'),4),(('ne','w'),4),(('r','e'),3),(('re','new'),2)]:
+    scores = pair_counts()
+    assert scores[pair] == max(scores.values()) == count
+    do_merge(pair)
+assert word_tokens == {'set': ['s','e','t'], 'new':['new'],
+                       'renew':['renew'], 'reset':['re','s','e','t']}
+
+# Additional numerical example: log-TF, unsmoothed IDF, and cosine ranking.
+words = ['sweet', 'nurse', 'love', 'how', 'sorrow', 'is']
+corpus = ['sweet sweet nurse love', 'sweet sorrow',
+          'how sweet is love', 'nurse']
+idf = {word: log10(4/sum(word in d.split() for d in corpus)) for word in words}
+assert isclose(idf['sweet'], log10(4/3))
+assert isclose(idf['love'], log10(2))
+assert isclose(idf['how'], log10(4))
+def tfidf(text):
+    tokens = text.split()
+    return [(1+log10(tokens.count(word)))*idf[word] if word in tokens else 0.0
+            for word in words]
+query = tfidf('sweet love')
+scores = [cosine(query, tfidf(doc)) for doc in corpus]
+assert all(isclose(a,b, abs_tol=1e-6) for a,b in zip(
+    scores, [0.7468654212, 0.0778893249, 0.3574976314, 0.0]))
+assert sorted(range(4), key=lambda i: scores[i], reverse=True) == [0,2,1,3]
+assert isclose((10000-100)/10000, 0.99)
+
+print('All additional BPE, search, DBSCAN, GMM, and linkage checks passed.')
