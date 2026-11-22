@@ -27,3 +27,7 @@
 
 - The Part II guide includes `reviews/linkage_selection.tex`, `reviews/information_criteria.tex`, and `reviews/gmm_covariance.tex`. New review chapters must start on new pages, use `reviewproblem` rather than falsely claiming a supplied-guide question, and state which facts came from the lectures versus supplementary analysis.
 - Maintain the distinction between centroid height inversions and tree topology, BIC/AIC criteria and actual model probabilities, and covariance-model restrictions versus EM's E/M optimizer. Check `verify_numbers.py` and compile/visually inspect the PDF before pushing.
+
+## Final project
+
+The public `final_project/` folder is a documentation scaffold. Before adding the competition notebook, comply with Kaggle S6E11's requirement to publish publicly shared competition code in its competition-associated Kaggle Notebook or Discussion. Do not commit competition data, record-level predictions, model binaries or secrets. Read `final_project/AGENTS.md` and `final_project/notes/HANDOFF.md` before resuming the project.
