@@ -98,3 +98,7 @@ El workflow **Build study guide PDF** permite seleccionar Parcial I o Parcial II
 El repositorio de Aurélien Géron se mantiene como **git subtree** bajo `hands-mlp/`.
 
 Consulta `docs/handson-mlp-subtree.md` para agregarlo y actualizarlo desde upstream.
+
+## Final project — Kaggle credit-card fraud
+
+The new [`final_project/`](final_project/) folder contains the project plan and publication safeguards. The runnable notebook was prepared and tested locally but has not yet been added to this **public** repository: competition rules require publicly shared code also to be shared on the competition's Kaggle discussion/notebooks. See `final_project/README.md`.
