@@ -15,3 +15,7 @@ Once publication is compliant:
 ## experiment002 — visualization extension
 
 A locally packaged, not-yet-public notebook extends the plan to 13 configurations across five families (linear logistic, PCA logistic, spline logistic, random forest, XGBoost). It uses saved Seaborn plots and full-train grouped EDA, with fixed-seed 30,000-row plot/anomaly samples. Never infer causal effect from marginal fraud-rate curves or remove extreme transactions automatically. For additive spline logistic, fit SplineTransformer inside each CV training fold. Notebook publication gate remains in force.
+
+## experiment003 safeguard
+
+The enhanced 56-cell notebook includes a ten-condition logistic assumption audit and XGBoost corrections on logistic **logits** using `base_margin`. Pass stage-1 logits both when fitting and predicting the boosted stage; do not substitute the probabilities or omit the margin at inference. Fit both stages inside each CV training fold and preserve the same five stratified folds used for other candidates. Full experiment is 15 candidates × 5 folds; a 6,000-row smoke test is not a full-data result. The source notebook and reproducibility artifacts are currently only in the owner-delivered ZIP pending Kaggle public-code-sharing compliance.
