@@ -22,3 +22,9 @@ The reproducible notebook package is available to the project owner in the ChatG
 - Create `id,is_fraud` Kaggle submission probabilities.
 
 The GitHub repository's lecture notebooks and prior submissions remain unchanged.
+
+## Visualization extension (experiment002)
+
+The project owner's locally distributed notebook now includes Seaborn visualizations of fraud prevalence, missingness, distributions, correlations, categorical/Boolean risk, nonlinear binned rates, time-of-day effects, pairwise interaction heatmaps, 3×IQR numerical extremes, and Isolation Forest anomaly diagnostics. A spline-logistic candidate was added, bringing the planned full experiment to **13 candidates × 5 stratified folds = 65 model fits**. Figures contain labeled axes, legends and sampling limitations; potential outliers are not automatically removed.
+
+The enhanced notebook and figures were validated locally using original training data for grouped EDA rates and a reduced five-fold smoke test for execution. **Full-data 65-fit model tuning remains unexecuted.** Competition code remains out of this public repository until publication on the associated Kaggle notebook/discussion satisfies the sharing rules. See `final_project/notes/HANDOFF.md`.
