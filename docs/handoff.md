@@ -46,3 +46,7 @@
 - Checked values: for x=2 in C1, a=3.5, alternative averages 6.5 and 14.5, b=6.5, s=6/13; for x=7 in C1, a=6, alternative averages 1.5 and 9.5, b=1.5, s=-0.75.
 - Definition: exclude only the observation itself when calculating a(i); b(i) is the minimum of whole-cluster *mean* distances, not the nearest individual neighbor. The example is explicitly labeled supplementary and does not misstate the source guide.
 - Added the computation procedure to `appendix_formulas.tex`, standard-library assertions to `verify_numbers.py`, and a scope note to the local README. LaTeX compiled successfully to 55 pages with no overfull boxes; new example pages 19–20 were rendered and inspected; all numerical checks passed.
+
+## Final project — Kaggle S6E11 (2026-11-22)
+
+Created `final_project/` documentation scaffold for a five-fold stratified CV credit-card fraud notebook. The local, standalone 22-cell notebook was validated and smoke-tested on a 15,000-row stratified development sample (five folds; four model families); all Kaggle-format submission checks passed. The full 699,960-row, 11-configuration run has not been executed. Source notebook and experiment summary were provided as a downloadable ZIP in the conversation, **not** pushed here, because the repository is public and the competition requires publicly shared code also to appear in its Kaggle Notebook or Discussion. Review the scoped handoff before publishing any competition code or raw data.
