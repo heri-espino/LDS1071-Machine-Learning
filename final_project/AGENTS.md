@@ -11,3 +11,7 @@ Once publication is compliant:
 - Keep every candidate's fold metrics and OOF predictions; do not confuse a model blend with bootstrap bagging.
 - Name experiments sequentially: `experiment001`, `experiment002`, etc. Preserve reproducibility and handoffs.
 - Check concurrent branches and PRs. Never merge without explicit authorization.
+
+## experiment002 — visualization extension
+
+A locally packaged, not-yet-public notebook extends the plan to 13 configurations across five families (linear logistic, PCA logistic, spline logistic, random forest, XGBoost). It uses saved Seaborn plots and full-train grouped EDA, with fixed-seed 30,000-row plot/anomaly samples. Never infer causal effect from marginal fraud-rate curves or remove extreme transactions automatically. For additive spline logistic, fit SplineTransformer inside each CV training fold. Notebook publication gate remains in force.
