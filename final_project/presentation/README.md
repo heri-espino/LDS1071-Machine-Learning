@@ -9,3 +9,17 @@ The PDF and HTML were generated via the included offline Python/browser workflow
 **Public-sharing safeguard:** This repository is public. The full presentation, derived figures, source notebook, and competition code were deliberately **not** pushed here pending compliance with Kaggle's competition-specific public-code-sharing requirements (including publication on the competition-associated Kaggle Notebook/Discussion as appropriate). This README is a documentation-only scaffold.
 
 The supplied `figures.zip` did not contain numerical fold-level CSVs, so detailed performance claims should be checked against the separate training outputs before publication.
+
+## Two Spanish presentations — experiment007 (2026-11-23)
+
+A private updated project ZIP, `LDS1071_fraud_presentaciones_es_v7.zip`, contains two full Spanish-language presentations plus the earlier English version:
+
+- `presentation/presentacion_corta/`: **20 slides**, a **17.55-minute speaking plan** (leaving room within 20 minutes), **13 selected original figures**, fully editable Marp `deck.md`, standalone animated `slides.html`, static 20-page `slides.pdf`, and `guion_del_presentador.md`.
+- `presentation/presentacion_completa/`: **75 slides**, **all 44 original figures**, expanded methods/math/model descriptions, matching Marp Markdown, standalone animated HTML, 75-page PDF, and detailed speaker notes.
+- Shared source: `presentation/build_presentaciones_es.py` and `presentation/themes/fraud-es.css`. Original 44 figure PNG hashes are unchanged.
+
+The presentations explain EDA, nonlinear patterns, outlier treatment, logistic assumptions, PCA, random forests, XGBoost/CatBoost, five-fold out-of-fold validation, nested GridSearchCV, probability blending, logit-offset boosting and decision limitations. They explicitly distinguish **blending** from classical bagging, and **offset boosting** from logistic meta-model stacking, which has *not* been implemented. They do not invent a definitive full-run winner because the user supplied 44 figures but no corresponding full-run metric CSV files.
+
+The included HTML/PDF were exported through the reproducible **offline Python renderer**, not the official Marp CLI; the Markdown is Marp-compatible and may be compiled using the documented CLI commands. Browser interaction could not be independently tested in the current environment; HTML structure/JS syntax and PDF pages/figures were verified.
+
+**Public-sharing safeguard:** only this documentation is public. The complete code/derived figures remain in the owner's private ZIP pending Kaggle competition code-sharing compliance.
