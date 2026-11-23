@@ -37,3 +37,8 @@ Do not publish competition code to the public GitHub repo without also posting i
 ## Presentation handoff — experiment006
 
 The private `LDS1071_credit_fraud_marp_presentation_v6.zip` contains all 44 original figures, `presentation/deck.md`, `themes/fraud-minimal.css`, self-contained `slides.html`, 59-page `slides.pdf`, a figure manifest and reproducible build scripts. The PDF was generated with an offline layout renderer rather than the official Marp CLI; use the documented Marp CLI commands on the owner's machine if strict Marp-renderer exports are required. Preserve the original 44 images and all 59 slides when editing. Do not publish competition-derived code or data to this public repository before complying with Kaggle's code-sharing rule.
+
+
+## experiment007 — Spanish presentation handoff
+
+Preserve the earlier English slide deck and the two new Spanish folders (`presentacion_corta`: 20 slides; `presentacion_completa`: 75 slides). The 44 user-provided original PNGs were not modified. Both versions have Marp Markdown, standalone HTML and PDF plus speaker notes. Rebuild with `python presentation/build_presentaciones_es.py` in the privately delivered ZIP. Explicitly distinguish heterogeneous probability blending from bootstrap bagging and logistic-offset boosting from a genuine meta-logistic stacking model. Full-run metric CSVs were not included with the supplied figures: do not invent final model rankings. Do not publish competition-derived artifacts publicly unless Kaggle sharing requirements are satisfied.
