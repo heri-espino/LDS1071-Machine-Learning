@@ -23,3 +23,13 @@ The enhanced 56-cell notebook includes a ten-condition logistic assumption audit
 ## experiment004 / publication gate
 
 The owner's private v4 notebook is 96 cells and retains all 15 candidate specs across five folds. Figures 20–25 are EDA; figures 26–41 are OOF-based model, ensemble, and submission diagnostics. Labels and legends explain balancing and sampling; never compute prevalence from class-balanced display samples or misinterpret OOF-selected ensembles as independent test performance. `SAVE_FOLD_MODELS=True` enables first-fold importance and sample-bounded partial dependence (which can be disabled using `RUN_PDP=False`). Full 75 fits remain unrun. Next experimental stage is sequential `experiment005`. Keep Kaggle competition code off public GitHub until the required competition-associated public sharing occurs.
+
+## experiment005 — Conda, GridSearchCV and GPU behavior
+
+Read the final-project PowerShell setup in `final_project/README.md`. `environment.yml` is the canonical Python 3.11 Conda spec with `ipykernel`; `requirements.txt` provides pip dependencies. The current privately distributed notebook has 100 cells and 19 candidate configurations. Preserve experiments 001–004 and the sequential experiment005 diagnostics.
+
+`XGBOOST_DEVICE='auto'` attempts `tree_method='hist', device='cuda:0'` only after a tiny XGBoost CUDA fit and verification of the **actual booster device** from `save_config()`. CPU fallback is intentional; the configured `device` parameter alone is not trustworthy. Fixed XGBoost, nested-grid XGBoost and logistic-offset correction share this device. CatBoost independently probes GPU and falls back to CPU. Keep `GRID_SEARCH_N_JOBS=1` for single-GPU searches and record effective `model_device` in outer fold and inner-grid results.
+
+GridSearchCV uses a stratified training-only subset for each outer training fold, with preprocessing fitted inside each inner fold. Refit the inner selected model on the full outer train partition; do not select hyperparameters using outer validation labels. Full planned run: 19 × 5 outer fits + 240 inner fits. Smoke tests passed on CPU-only hardware; actual GPU execution and full-data model quality are not established.
+
+Do not publish competition code to the public GitHub repo without also posting it on the competition-associated Kaggle Notebook/Discussion, as required by Kaggle's code-sharing rule. Do not commit original Kaggle data, record-level outputs, model binaries or secrets.
