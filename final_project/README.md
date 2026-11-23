@@ -85,3 +85,7 @@ Run a preliminary test with `FAST_DEV_RUN=True`, `MAX_CANDIDATES_PER_FAMILY=1`, 
 Validation: the 3,000-row five-fold smoke test passed for baseline LR, fixed XGBoost and CatBoost, and both nested searches; a separate logit-offset XGBoost test also passed. No CUDA hardware is available in the validation environment, so only CPU fallback was verified, not actual GPU performance. The full 699,960-row run has not been executed.
 
 Official GPU configuration documentation: https://xgboost.readthedocs.io/en/release_3.1.0/gpu/index.html
+
+## experiment006 — Marp-style visual presentation
+
+The owner supplied 44 original PNGs under `outputs/figures/`. A 59-slide narrated visual report was prepared in a privately delivered ZIP, with an editable Marp-compatible `presentation/deck.md`, theme, a self-contained interactive HTML (keyboard navigation, transitions, click-to-zoom), and a searchable static PDF. All 44 figure images appear exactly once in each output. Only the documentation scaffold under `presentation/README.md` is pushed to this public repository while the Kaggle public-sharing gate remains unresolved. The figures alone do not establish run logs, full CV provenance, or Kaggle leaderboard scores; verify those separately before numerical claims.
