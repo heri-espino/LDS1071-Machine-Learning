@@ -40,3 +40,48 @@ The planned full run now has **15 candidate configurations × 5 stratified folds
 A **96-cell** single Jupyter notebook, distributed privately in the owner's conversation as `LDS1071_credit_fraud_visual_diagnostics_v4.zip`, preserves the five-fold 15-candidate (75-fit) model experiment and adds figures 20–41. New Seaborn plots include single-feature AUC screening, class-conditional ECDFs, categorical/Boolean and time interactions, pairwise views, train/test feature shift, OOF four-metric scorecard, fit-time efficiency, score distributions, cumulative lift/capture, review-budget precision/recall, operating-rule confusion matrices, OOF calibration intervals, subgroup quality, top-risk-set Jaccard overlap, model-specific importance, sample-bounded partial dependence, blend impact, hyperparameter effects, fold stability, and test-score sanity diagnostics. Plots are saved to `outputs/figures/` with a CSV catalog.
 
 Six new data-EDA sections executed using the original competition train/test files (full training data for aggregate rates), and all new model-side plots executed in a **4,000-row / five-fold / five-candidate smoke run**. Some plots use sampled rows; an optional `RUN_PDP` switch skips partial dependence. None of those results are full-data final scores. Existing experiment001–003 material remains untouched. The full 699,960-row × 15 × 5 experiment remains **pending**. Because the repository is public, the executable notebook remains only in the owner-delivered ZIP until it can also be shared in the competition's Kaggle Notebook/Discussion as required. Do not push competition records or predictions.
+
+## experiment005 — Conda environment and CUDA-preferred boosted-tree searches
+
+The privately delivered project ZIP contains the latest 100-cell notebook and experiment005 records. This public repository contains documentation and dependencies; the competition notebook itself remains private until its code is also shared in the associated Kaggle Notebook/Discussion as required by Kaggle.
+
+### Step-by-step Windows PowerShell setup
+
+Install Miniconda or Anaconda if needed, then open PowerShell or Anaconda PowerShell Prompt:
+
+```powershell
+conda --version
+conda init powershell
+# Close and reopen PowerShell after initialization.
+Set-Location 'C:\path\to\LDS1071-Machine-Learning'
+# Extract the private project ZIP so the notebook is in final_project/.
+conda env create -f .\final_project\environment.yml
+conda activate lds1071-fraud
+python -m ipykernel install --user --name lds1071-fraud --display-name 'Python (LDS1071 Fraud)'
+python -m pip check
+jupyter kernelspec list
+nvidia-smi # Optional NVIDIA/CUDA device check
+# Place playground-series-s6e11.zip beside credit_card_fraud.ipynb locally.
+Set-Location .\final_project
+jupyter lab credit_card_fraud.ipynb
+```
+
+Select the **Python (LDS1071 Fraud)** Jupyter kernel. The manual environment alternative is `conda create -n lds1071-fraud python=3.11 pip -y`, followed by `conda activate lds1071-fraud` and `python -m pip install -r .\final_project\requirements.txt` from the repository root. Do not run both environment creation methods. To update an existing environment, run `conda env update -n lds1071-fraud -f .\final_project\environment.yml --prune`.
+
+### GPU and model search configuration
+
+```python
+XGBOOST_DEVICE = 'auto'   # prefer CUDA GPU when a real training probe succeeds; else CPU
+XGBOOST_GPU_ID = '0'
+CATBOOST_DEVICE = 'auto'  # prefer CUDA GPU; else CPU
+CATBOOST_GPU_ID = '0'
+GRID_SEARCH_N_JOBS = 1    # one GPU grid candidate at a time
+```
+
+XGBoost uses `tree_method='hist'` and `device='cuda:0'` after a successful CUDA probe, otherwise CPU. The probe examines the effective trained booster config because XGBoost can silently fall back even when CUDA is requested. Fixed XGBoost, the nested GridSearchCV XGBoost candidate, and logistic-offset boosting all use the same resolved device. Runtime CUDA failures retry on CPU and effective devices are recorded in fold/search metrics. CatBoost has its own CUDA probe and CPU fallback.
+
+Run a preliminary test with `FAST_DEV_RUN=True`, `MAX_CANDIDATES_PER_FAMILY=1`, `SAVE_FOLD_MODELS=False` and `RUN_PDP=False`. Restore `FAST_DEV_RUN=False`, `MAX_CANDIDATES_PER_FAMILY=None`, `SAVE_FOLD_MODELS=True` and `RUN_PDP=True` for full experiments. The planned full run comprises **19 model candidates × 5 outer folds = 95 outer fits**, plus **240 inner grid-search fits**, and produces OOF comparisons, figures and a Kaggle-format submission.
+
+Validation: the 3,000-row five-fold smoke test passed for baseline LR, fixed XGBoost and CatBoost, and both nested searches; a separate logit-offset XGBoost test also passed. No CUDA hardware is available in the validation environment, so only CPU fallback was verified, not actual GPU performance. The full 699,960-row run has not been executed.
+
+Official GPU configuration documentation: https://xgboost.readthedocs.io/en/release_3.1.0/gpu/index.html
