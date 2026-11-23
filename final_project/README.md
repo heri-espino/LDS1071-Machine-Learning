@@ -89,3 +89,8 @@ Official GPU configuration documentation: https://xgboost.readthedocs.io/en/rele
 ## experiment006 — Marp-style visual presentation
 
 The owner supplied 44 original PNGs under `outputs/figures/`. A 59-slide narrated visual report was prepared in a privately delivered ZIP, with an editable Marp-compatible `presentation/deck.md`, theme, a self-contained interactive HTML (keyboard navigation, transitions, click-to-zoom), and a searchable static PDF. All 44 figure images appear exactly once in each output. Only the documentation scaffold under `presentation/README.md` is pushed to this public repository while the Kaggle public-sharing gate remains unresolved. The figures alone do not establish run logs, full CV provenance, or Kaggle leaderboard scores; verify those separately before numerical claims.
+
+
+## Presentaciones en español — experiment007
+
+Se prepararon dos nuevas versiones en `presentation/presentacion_corta/` (20 diapositivas, 13 figuras, máximo 20 minutos) y `presentation/presentacion_completa/` (75 diapositivas, 44 figuras). Cada una incluye Markdown Marp editable, HTML con transiciones, PDF y guion. El ZIP privado `LDS1071_fraud_presentaciones_es_v7.zip` contiene ambos formatos y conserva el proyecto original. Los resultados no incluyen afirmaciones no verificadas sobre el ganador del run completo; véase `presentation/README.md`.
