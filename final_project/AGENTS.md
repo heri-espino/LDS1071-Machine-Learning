@@ -33,3 +33,7 @@ Read the final-project PowerShell setup in `final_project/README.md`. `environme
 GridSearchCV uses a stratified training-only subset for each outer training fold, with preprocessing fitted inside each inner fold. Refit the inner selected model on the full outer train partition; do not select hyperparameters using outer validation labels. Full planned run: 19 × 5 outer fits + 240 inner fits. Smoke tests passed on CPU-only hardware; actual GPU execution and full-data model quality are not established.
 
 Do not publish competition code to the public GitHub repo without also posting it on the competition-associated Kaggle Notebook/Discussion, as required by Kaggle's code-sharing rule. Do not commit original Kaggle data, record-level outputs, model binaries or secrets.
+
+## Presentation handoff — experiment006
+
+The private `LDS1071_credit_fraud_marp_presentation_v6.zip` contains all 44 original figures, `presentation/deck.md`, `themes/fraud-minimal.css`, self-contained `slides.html`, 59-page `slides.pdf`, a figure manifest and reproducible build scripts. The PDF was generated with an offline layout renderer rather than the official Marp CLI; use the documented Marp CLI commands on the owner's machine if strict Marp-renderer exports are required. Preserve the original 44 images and all 59 slides when editing. Do not publish competition-derived code or data to this public repository before complying with Kaggle's code-sharing rule.
