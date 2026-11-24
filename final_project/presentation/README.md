@@ -23,3 +23,7 @@ The presentations explain EDA, nonlinear patterns, outlier treatment, logistic a
 The included HTML/PDF were exported through the reproducible **offline Python renderer**, not the official Marp CLI; the Markdown is Marp-compatible and may be compiled using the documented CLI commands. Browser interaction could not be independently tested in the current environment; HTML structure/JS syntax and PDF pages/figures were verified.
 
 **Public-sharing safeguard:** only this documentation is public. The complete code/derived figures remain in the owner's private ZIP pending Kaggle competition code-sharing compliance.
+
+## Plantilla whitegrid y dos versiones españolas — experiment010
+
+La revisión del propietario contiene `presentacion_corta/deck.md` y `presentacion_completa/deck.md`, respectivamente de 23 y 93 diapositivas, más exportaciones HTML/PDF. Fondo blanco, paleta Seaborn deep, tipografía sobria, sin tarjetas redondeadas, matemáticas con delimitadores LaTeX. Páginas 4, 5, 10, 12, 18, 19, 20 y 22 de la corta: figura grande a la izquierda y explicación a la derecha. Diapositiva 22: bootstrap pareado B=600, IC 95% de diferencia offset vs XGBoost fijo [−0.000263,+0.000440]. La comparación con XGBoost de GridSearchCV requiere el vector OOF faltante. El v9 original está preservado en `presentation/archive/v9/` del ZIP privado. Los archivos fuente/figuras no se publican aquí hasta cumplir los requisitos de Kaggle.
