@@ -94,3 +94,20 @@ The owner supplied 44 original PNGs under `outputs/figures/`. A 59-slide narrate
 ## Presentaciones en español — experiment007
 
 Se prepararon dos nuevas versiones en `presentation/presentacion_corta/` (20 diapositivas, 13 figuras, máximo 20 minutos) y `presentation/presentacion_completa/` (75 diapositivas, 44 figuras). Cada una incluye Markdown Marp editable, HTML con transiciones, PDF y guion. El ZIP privado `LDS1071_fraud_presentaciones_es_v7.zip` contiene ambos formatos y conserva el proyecto original. Los resultados no incluyen afirmaciones no verificadas sobre el ganador del run completo; véase `presentation/README.md`.
+
+
+## experiment008 — Reuse saved models for four-ensemble comparison
+
+A new, **second** Jupyter notebook (`ensemble_comparison.ipynb`) is included in the owner's private ZIP `LDS1071_fraud_ensembles_v8.zip`; it does not rerun the full original `credit_card_fraud.ipynb`. It searches original `outputs/` and `final_project/outputs/` for `all_candidate_predictions.npz`, `candidate_metrics.csv`, `run_manifest.json`, and the five saved `models/logit_C1_fold*.joblib` models. It evaluates the best standalone against equal-weight blending, **cached** logistic-offset XGBoost, **new** explicit probability-residual XGBRegressor, and **new** random-forest stacking using only other models' OOF probabilities. It records OOF AUC/AP/log-loss/Brier, fold diagnostic plots, four ensemble submissions, and the selected submission in `final_project/outputs/ensemble_extension/`.
+
+From PowerShell, after unpacking the ZIP **without deleting local outputs**:
+
+```powershell
+conda activate lds1071-fraud
+Set-Location .\final_project
+Test-Path .\outputs\all_candidate_predictions.npz
+(Get-ChildItem .\outputs\models\logit_C1_fold*.joblib).Count
+jupyter lab ensemble_comparison.ipynb
+```
+
+Select the **Python (LDS1071 Fraud)** kernel and run all cells. If the outputs are at repository root, use `..\outputs` in the checks; the notebook autodetects them. See [experiment008](experiments/experiment008/README.md) for leakage limitations, validation and reproduction details. This repository is public; the executable competition notebook remains in the private ZIP until Kaggle's public-sharing requirements are satisfied.
