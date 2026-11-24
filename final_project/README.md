@@ -111,3 +111,7 @@ jupyter lab ensemble_comparison.ipynb
 ```
 
 Select the **Python (LDS1071 Fraud)** kernel and run all cells. If the outputs are at repository root, use `..\outputs` in the checks; the notebook autodetects them. See [experiment008](experiments/experiment008/README.md) for leakage limitations, validation and reproduction details. This repository is public; the executable competition notebook remains in the private ZIP until Kaggle's public-sharing requirements are satisfied.
+
+## experiment009 — Dos presentaciones actualizadas con el ensamble
+
+Se actualizaron las presentaciones españolas a partir de los resultados agregados de la ejecución completa de `ensemble_comparison.ipynb`: la corta contiene 23 diapositivas (guion de 18.4 minutos), la completa 91 diapositivas (44 figuras originales + 6 nuevas). Se seleccionó logistic-offset XGBoost por ROC AUC OOF 0.946205 frente al mejor individuo XGBoost 0.946120; la diferencia +0.000085 no demuestra superioridad estadística. El ZIP privado contiene Marp Markdown editable, HTML, PDF y generadores reproducibles. Véase [`experiments/experiment009/README.md`](experiments/experiment009/README.md). La distribución pública de código o imágenes derivados sigue condicionada por las reglas de Kaggle.
