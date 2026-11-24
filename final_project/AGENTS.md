@@ -55,3 +55,7 @@ La extensión aporta CSV agregados para cinco estrategias (mejor XGBoost individ
 ## experiment010 — Regla de publicación y bootstrap
 
 Se diseñaron dos nuevos decks con plantilla Seaborn whitegrid y un notebook adicional `paired_bootstrap_comparison.ipynb` (distribución privada). Las presentaciones tienen 23 y 93 diapositivas, matemáticas en `$$...$$`, y el material anterior se conserva en `presentation/archive/v9/`. El bootstrap es emparejado/estratificado, con 600 réplicas, y no corrige la selección OOF ni los posibles grupos de dependencia. Jamás atribuir la AUC del XGBoost fijo a `xgb_nested_grid`: el vector OOF de éste no se recibió. Ver `experiments/experiment010/README.md`. No publicar código ni figuras del concurso en GitHub sin la publicación equivalente requerida por Kaggle; nunca publicar datos fila a fila ni modelos binarios.
+
+## experiment011 — Presentación corta, EDA/PCA
+
+La versión corta privada contiene 36 diapositivas y 21 figuras, estimadas en 18.14 minutos. Se recompila con `python presentation/build_presentacion_corta_v11.py`, sin entrenar modelos. Mantener las fórmulas Marp delimitadas como `$$...$$` y con tamaño de texto normal, conservar `presentation/archive/v10/presentacion_corta/` y no modificar la presentación completa. Consultar `experiments/experiment011/README.md`; no publicar figuras ni código del concurso sin cumplir las reglas de Kaggle.
