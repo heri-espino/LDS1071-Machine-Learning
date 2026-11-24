@@ -27,3 +27,7 @@ The included HTML/PDF were exported through the reproducible **offline Python re
 ## Plantilla whitegrid y dos versiones españolas — experiment010
 
 La revisión del propietario contiene `presentacion_corta/deck.md` y `presentacion_completa/deck.md`, respectivamente de 23 y 93 diapositivas, más exportaciones HTML/PDF. Fondo blanco, paleta Seaborn deep, tipografía sobria, sin tarjetas redondeadas, matemáticas con delimitadores LaTeX. Páginas 4, 5, 10, 12, 18, 19, 20 y 22 de la corta: figura grande a la izquierda y explicación a la derecha. Diapositiva 22: bootstrap pareado B=600, IC 95% de diferencia offset vs XGBoost fijo [−0.000263,+0.000440]. La comparación con XGBoost de GridSearchCV requiere el vector OOF faltante. El v9 original está preservado en `presentation/archive/v9/` del ZIP privado. Los archivos fuente/figuras no se publican aquí hasta cumplir los requisitos de Kaggle.
+
+## Presentación corta v11
+
+La versión reducida pasó a 36 diapositivas (21 figuras), con un plan de exposición de 18.14 minutos. Añade la descripción de variables y EDA al principio, PCA/SVD, probabilidades de clasificación y los análisis de las diapositivas 31, 32, 35, 36 y 53 de la versión extensa. Fórmulas LaTeX en `$$...$$`, renderizadas en el tamaño del texto; `build_presentacion_corta_v11.py` recompila PDF/HTML sin recalcular modelos. La versión larga se preservó y los anteriores archivos breves v10 se archivaron. El código fuente actualizado sigue distribuido en el ZIP privado.
